@@ -1,0 +1,152 @@
+import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import {
+  Calendar,
+  FileText,
+  Palette,
+  FolderOpen,
+  MessageCircle,
+  BarChart3,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+
+const navigationItems = [
+  {
+    title: "Calendário Inteligente",
+    url: "/",
+    icon: Calendar,
+  },
+  {
+    title: "Briefing da Marca",
+    url: "/briefing",
+    icon: FileText,
+  },
+  {
+    title: "Branding",
+    url: "/branding",
+    icon: Palette,
+  },
+  {
+    title: "Biblioteca Centralizada",
+    url: "/biblioteca",
+    icon: FolderOpen,
+  },
+  {
+    title: "Diana (IA)",
+    url: "/diana",
+    icon: MessageCircle,
+  },
+  {
+    title: "Relatórios",
+    url: "/relatorios",
+    icon: BarChart3,
+  },
+  {
+    title: "Configurações",
+    url: "/configuracoes",
+    icon: Settings,
+  },
+];
+
+export function DashboardSidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const isActive = (path: string) => currentPath === path;
+
+  return (
+    <Sidebar
+      className={cn(
+        "border-r border-sidebar-border bg-sidebar transition-smooth",
+        isCollapsed ? "w-16" : "w-64"
+      )}
+      collapsible="icon"
+    >
+      {/* Toggle Button */}
+      <div className="flex justify-end p-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="h-8 w-8 hover:bg-sidebar-accent"
+        >
+          {isCollapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+
+      <SidebarContent>
+        <SidebarGroup>
+          {!isCollapsed && (
+            <SidebarGroupLabel className="text-sidebar-foreground/70 font-medium">
+              Menu Principal
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    className={cn(
+                      "transition-smooth rounded-lg",
+                      isActive(item.url)
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-soft"
+                        : "hover:bg-sidebar-accent/50"
+                    )}
+                  >
+                    <NavLink to={item.url} className="flex items-center">
+                      <item.icon 
+                        className={cn(
+                          "h-5 w-5 transition-smooth",
+                          isActive(item.url) && "text-primary"
+                        )} 
+                      />
+                      {!isCollapsed && (
+                        <span className="ml-3 text-sm">{item.title}</span>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Diana Quick Access */}
+        {!isCollapsed && (
+          <SidebarGroup className="mt-auto mb-4">
+            <div className="px-4 py-3 bg-accent/30 rounded-lg mx-4 border border-primary/20">
+              <div className="flex items-center space-x-2 mb-2">
+                <MessageCircle className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Diana IA</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Sua assistente de marketing sempre disponível
+              </p>
+            </div>
+          </SidebarGroup>
+        )}
+      </SidebarContent>
+    </Sidebar>
+  );
+}
