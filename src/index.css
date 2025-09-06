@@ -54,6 +54,11 @@
     --shadow-soft: 0 4px 20px -2px hsl(45 100% 60% / 0.1);
     --shadow-elevation: 0 8px 30px -8px hsl(220 13% 18% / 0.12);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Bee Color System */
+    --bee-yellow: 45 100% 65%;
+    --bee-yellow-light: 45 100% 85%;
+    --bee-yellow-dark: 45 100% 55%;
 
     --sidebar-background: 0 0% 98%;
 

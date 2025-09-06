@@ -66,6 +66,11 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				'bee-yellow': {
+					DEFAULT: 'hsl(var(--bee-yellow))',
+					light: 'hsl(var(--bee-yellow-light))',
+					dark: 'hsl(var(--bee-yellow-dark))'
 				}
 			},
 			backgroundImage: {

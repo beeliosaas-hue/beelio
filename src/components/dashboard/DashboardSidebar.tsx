@@ -10,6 +10,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  TrendingUp,
+  Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,12 +29,17 @@ import {
 
 const navigationItems = [
   {
-    title: "Calendário Inteligente",
+    title: "Dashboard",
     url: "/",
+    icon: BarChart3,
+  },
+  {
+    title: "Calendário",
+    url: "/calendario",
     icon: Calendar,
   },
   {
-    title: "Briefing da Marca",
+    title: "Briefing",
     url: "/briefing",
     icon: FileText,
   },
@@ -42,14 +49,24 @@ const navigationItems = [
     icon: Palette,
   },
   {
-    title: "Biblioteca Centralizada",
-    url: "/biblioteca",
-    icon: FolderOpen,
+    title: "Tendências",
+    url: "/tendencias",
+    icon: TrendingUp,
   },
   {
-    title: "Diana (IA)",
+    title: "Planner IA",
+    url: "/planner",
+    icon: Lightbulb,
+  },
+  {
+    title: "Diana (Chat IA)",
     url: "/diana",
     icon: MessageCircle,
+  },
+  {
+    title: "Biblioteca",
+    url: "/biblioteca",
+    icon: FolderOpen,
   },
   {
     title: "Relatórios",
