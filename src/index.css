@@ -39,6 +39,9 @@
     
     --success: 120 100% 40%;
     --success-foreground: 0 0% 98%;
+    
+    --warning: 47 84% 62%;
+    --warning-foreground: 26 83% 14%;
 
     /* Interface Elements */
     --border: 210 17% 90%;
@@ -111,6 +114,9 @@
     
     --success: 120 100% 45%;
     --success-foreground: 220 13% 9%;
+    
+    --warning: 47 84% 62%;
+    --warning-foreground: 26 83% 14%;
 
     /* Interface Elements (Dark) */
     --border: 220 13% 18%;
