@@ -10,6 +10,7 @@ import Branding from "./pages/Branding";
 import Trends from "./pages/Trends";
 import Planner from "./pages/Planner";
 import Library from "./pages/Library";
+import PostApproval from "./pages/PostApproval";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/tendencias" element={<Trends />} />
           <Route path="/planner" element={<Planner />} />
           <Route path="/biblioteca" element={<Library />} />
+          <Route path="/aprovacao/:postId" element={<PostApproval />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
