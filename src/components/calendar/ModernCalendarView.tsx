@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Filter, Plus, MoreHorizontal, Clock, Facebook, Instagram, Linkedin, Youtube, PartyPopper, Flame } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, Instagram, Facebook, Linkedin, Youtube, Calendar as CalendarIcon, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 interface Post {
@@ -12,8 +14,7 @@ interface Post {
   content: string;
   scheduledTime: string;
   networks: string[];
-  status: "scheduled" | "published" | "draft";
-  thumbnail?: string;
+  status: "scheduled" | "published" | "draft" | "pending";
   type: "post" | "story" | "reel";
 }
 
@@ -46,23 +47,15 @@ const mockPosts: Post[] = [
 
 const mockEvents: CalendarEvent[] = [
   {
-    date: 15,
+    date: 7,
     type: "commemorative",
     data: {
-      title: "Dia do Consumidor",
-      description: "Data comemorativa nacional"
+      name: "Independência do Brasil",
+      description: "7 de Setembro"
     }
   },
   {
-    date: 18,
-    type: "trend",
-    data: {
-      title: "Marketing Digital em Alta",
-      description: "Tendência: +45% de engajamento"
-    }
-  },
-  {
-    date: 20,
+    date: 14,
     type: "post",
     data: mockPosts[0]
   },
@@ -75,31 +68,52 @@ const mockEvents: CalendarEvent[] = [
 
 const daysOfWeek = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
+const getSocialIcon = (network: string) => {
+  switch (network) {
+    case "facebook": return <Facebook className="h-3 w-3" />;
+    case "instagram": return <Instagram className="h-3 w-3" />;
+    case "linkedin": return <Linkedin className="h-3 w-3" />;
+    case "youtube": return <Youtube className="h-3 w-3" />;
+    default: return <Instagram className="h-3 w-3" />;
+  }
+};
+
+const getSocialColor = (network: string) => {
+  switch (network) {
+    case "facebook": return "bg-blue-100 text-blue-800 border-blue-200";
+    case "instagram": return "bg-purple-100 text-purple-800 border-purple-200";
+    case "linkedin": return "bg-blue-100 text-blue-800 border-blue-200";
+    case "youtube": return "bg-red-100 text-red-800 border-red-200";
+    default: return "bg-gray-100 text-gray-800 border-gray-200";
+  }
+};
+
 interface ModernCalendarViewProps {
   onCreatePost: () => void;
 }
 
 export function ModernCalendarView({ onCreatePost }: ModernCalendarViewProps) {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date(2025, 8)); // September 2025
   const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-
-  const currentMonth = currentDate.toLocaleDateString('pt-BR', { 
-    month: 'long', 
-    year: 'numeric' 
-  });
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [channelFilter, setChannelFilter] = useState("all");
 
   const generateCalendarDays = () => {
-    const days = [];
-    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
 
+    const days = [];
+
+    // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
 
+    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(day);
     }
@@ -107,31 +121,10 @@ export function ModernCalendarView({ onCreatePost }: ModernCalendarViewProps) {
     return days;
   };
 
-  const days = generateCalendarDays();
-  const today = new Date().getDate();
+  const calendarDays = generateCalendarDays();
 
   const getEventsForDay = (day: number): CalendarEvent[] => {
     return mockEvents.filter(event => event.date === day);
-  };
-
-  const getSocialIcon = (network: string) => {
-    switch (network) {
-      case "facebook": return Facebook;
-      case "instagram": return Instagram;
-      case "linkedin": return Linkedin;
-      case "youtube": return Youtube;
-      default: return Instagram;
-    }
-  };
-
-  const getSocialColor = (network: string) => {
-    switch (network) {
-      case "facebook": return "text-blue-600 border-blue-200";
-      case "instagram": return "text-purple-600 border-purple-200";
-      case "linkedin": return "text-blue-700 border-blue-200";
-      case "youtube": return "text-red-600 border-red-200";
-      default: return "text-gray-600 border-gray-200";
-    }
   };
 
   const navigateMonth = (direction: "prev" | "next") => {
@@ -147,248 +140,223 @@ export function ModernCalendarView({ onCreatePost }: ModernCalendarViewProps) {
   };
 
   return (
-    <Card className="shadow-elevation">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Button
-                variant={viewMode === "month" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("month")}
-              >
-                Mês
-              </Button>
-              <Button
-                variant={viewMode === "week" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("week")}
-              >
-                Semana
-              </Button>
-              <Button
-                variant={viewMode === "day" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("day")}
-              >
-                Dia
-              </Button>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => navigateMonth("prev")}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="font-medium text-sm px-4 capitalize">{currentMonth}</span>
-            <Button variant="outline" size="icon" onClick={() => navigateMonth("next")}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+    <div className="space-y-4">
+      {/* Filter controls */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateMonth("prev")}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <h3 className="text-lg font-semibold min-w-[200px] text-center">
+            {currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+          </h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateMonth("next")}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
-      </CardHeader>
-      
-      <CardContent>
-        {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1 mb-4">
-          {/* Days of week header */}
-          {daysOfWeek.map((day) => (
-            <div
-              key={day}
-              className="p-3 text-center text-sm font-medium text-muted-foreground border-b"
-            >
-              {day}
-            </div>
-          ))}
+        
+        <div className="flex items-center space-x-4">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Todos os Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Status</SelectItem>
+              <SelectItem value="published">Publicado</SelectItem>
+              <SelectItem value="scheduled">Agendado</SelectItem>
+              <SelectItem value="draft">Rascunho</SelectItem>
+              <SelectItem value="pending">Aguardando Aprovação</SelectItem>
+            </SelectContent>
+          </Select>
           
-          {/* Calendar days */}
-          {days.map((day, index) => {
-            const events = day ? getEventsForDay(day) : [];
-            const isToday = day === today;
-            
-            return (
+          <Select value={channelFilter} onValueChange={setChannelFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Todos os Canais" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Canais</SelectItem>
+              <SelectItem value="instagram">Instagram</SelectItem>
+              <SelectItem value="facebook">Facebook</SelectItem>
+              <SelectItem value="linkedin">LinkedIn</SelectItem>
+              <SelectItem value="youtube">YouTube</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "month" | "week" | "day")}>
+            <TabsList>
+              <TabsTrigger value="month">Mensal</TabsTrigger>
+              <TabsTrigger value="week">Semanal</TabsTrigger>
+              <TabsTrigger value="day">Diário</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </div>
+
+      {/* Calendar */}
+      <Card className="w-full">
+        <CardContent className="p-0">
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7 gap-px bg-muted">
+            {/* Days of week header */}
+            {daysOfWeek.map((day, index) => (
               <div
                 key={index}
-                className={cn(
-                  "min-h-[140px] p-2 border border-border bg-card hover:bg-accent/30 transition-smooth cursor-pointer",
-                  day ? "hover:shadow-soft" : "bg-muted/30",
-                  isToday && "ring-2 ring-primary bg-primary/5"
-                )}
+                className="bg-background p-3 text-center text-sm font-medium text-muted-foreground"
               >
-                {day && (
-                  <>
-                    <div className={cn(
-                      "text-sm font-medium mb-2 flex items-center justify-between",
-                      isToday ? "text-primary" : "text-foreground"
-                    )}>
-                      <span>{day}</span>
-                      {events.length > 0 && (
-                        <Badge variant="outline" className="text-xs h-5">
-                          {events.length}
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-1">
-                      {events.slice(0, 3).map((event, eventIndex) => {
-                        if (event.type === "commemorative") {
-                          return (
-                            <div
-                              key={eventIndex}
-                              className="text-xs p-1.5 rounded border bg-purple-50 text-purple-700 border-purple-200 flex items-center space-x-1"
-                            >
-                              <PartyPopper className="h-3 w-3 flex-shrink-0" />
-                              <span className="truncate">{event.data.title}</span>
-                            </div>
-                          );
-                        }
-                        
-                        if (event.type === "trend") {
-                          return (
-                            <div
-                              key={eventIndex}
-                              className="text-xs p-1.5 rounded border bg-orange-50 text-orange-700 border-orange-200 flex items-center space-x-1"
-                            >
-                              <Flame className="h-3 w-3 flex-shrink-0" />
-                              <span className="truncate">{event.data.title}</span>
-                            </div>
-                          );
-                        }
-                        
-                        if (event.type === "post") {
-                          const post = event.data as Post;
-                          return (
-                            <Popover key={eventIndex}>
-                              <PopoverTrigger asChild>
-                                <div className="text-xs p-1.5 rounded border bg-primary/10 text-primary border-primary/30 cursor-pointer hover:bg-primary/20 transition-colors">
-                                  <div className="flex items-center justify-between mb-1">
-                                    <div className="flex items-center space-x-1">
-                                      <Clock className="h-3 w-3" />
-                                      <span className="font-medium">{post.scheduledTime}</span>
-                                    </div>
-                                    <Badge 
-                                      variant={post.status === "scheduled" ? "default" : post.status === "published" ? "secondary" : "outline"}
-                                      className="text-xs h-4"
-                                    >
-                                      {post.status === "scheduled" ? "Agendado" : post.status === "published" ? "Publicado" : "Rascunho"}
-                                    </Badge>
-                                  </div>
-                                  
-                                  <div className="truncate font-medium mb-1">{post.title}</div>
-                                  
-                                  <div className="flex items-center space-x-1">
-                                    {post.networks.slice(0, 3).map((network, idx) => {
-                                      const Icon = getSocialIcon(network);
-                                      return (
-                                        <Icon 
-                                          key={idx} 
-                                          className={cn("h-3 w-3", getSocialColor(network).split(' ')[0])} 
-                                        />
-                                      );
-                                    })}
-                                    {post.networks.length > 3 && (
-                                      <span className="text-xs">+{post.networks.length - 3}</span>
-                                    )}
-                                  </div>
-                                </div>
-                              </PopoverTrigger>
-                              
-                              <PopoverContent className="w-80" align="start">
-                                <div className="space-y-3">
-                                  <div className="flex items-start justify-between">
-                                    <div>
-                                      <h4 className="font-semibold">{post.title}</h4>
-                                      <p className="text-sm text-muted-foreground mt-1">
-                                        {post.content.slice(0, 100)}...
-                                      </p>
-                                    </div>
-                                    <Button variant="ghost" size="icon">
-                                      <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                  
-                                  <div className="flex items-center space-x-2">
-                                    <Clock className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">{post.scheduledTime}</span>
-                                    <Badge variant="outline">{post.type}</Badge>
-                                  </div>
-                                  
-                                  <div className="flex flex-wrap gap-2">
-                                    {post.networks.map((network, idx) => {
-                                      const Icon = getSocialIcon(network);
-                                      return (
-                                        <div key={idx} className={cn("flex items-center space-x-1 text-xs px-2 py-1 rounded border", getSocialColor(network))}>
-                                          <Icon className="h-3 w-3" />
-                                          <span className="capitalize">{network}</span>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                  
-                                  <div className="flex space-x-2">
-                                    <Button size="sm" variant="outline" className="flex-1">
-                                      Editar
-                                    </Button>
-                                    <Button size="sm" variant="outline" className="flex-1">
-                                      Duplicar
-                                    </Button>
-                                    <Button size="sm" variant="destructive">
-                                      Excluir
-                                    </Button>
-                                  </div>
-                                </div>
-                              </PopoverContent>
-                            </Popover>
-                          );
-                        }
-                        
-                        return null;
-                      })}
+                {day}
+              </div>
+            ))}
+            
+            {/* Calendar days */}
+            {calendarDays.map((day, index) => {
+              const isCurrentMonth = day !== null;
+              const dayEvents = isCurrentMonth ? getEventsForDay(day) : [];
+              const isHighlighted = day === 7; // Highlighting day 7 for Independence Day
+              const isSelected = day === 14; // Yellow highlight for day 14
+              
+              return (
+                <div
+                  key={index}
+                  className={cn(
+                    "bg-background min-h-[120px] p-2 border-r border-b border-muted",
+                    !isCurrentMonth && "bg-muted/30",
+                    isHighlighted && "bg-red-50 border-red-200",
+                    isSelected && "bg-yellow-100 border-yellow-300"
+                  )}
+                >
+                  {isCurrentMonth && (
+                    <>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={cn(
+                          "text-sm font-medium",
+                          isHighlighted && "text-red-600 font-bold",
+                          isSelected && "text-yellow-800 font-bold"
+                        )}>
+                          {day}
+                        </span>
+                        {dayEvents.length > 0 && (
+                          <Badge variant="secondary" className="h-5 text-xs">
+                            {dayEvents.length}
+                          </Badge>
+                        )}
+                      </div>
                       
-                      {events.length > 3 && (
-                        <div className="text-xs text-muted-foreground p-1 text-center">
-                          +{events.length - 3} mais
+                      {isHighlighted && (
+                        <div className="text-xs text-red-600 font-medium mb-1">
+                          Independência do Brasil
                         </div>
                       )}
                       
-                      {events.length === 0 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={onCreatePost}
-                          className="w-full h-8 text-xs opacity-0 hover:opacity-100 transition-smooth"
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Adicionar
-                        </Button>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                      <div className="space-y-1">
+                        {dayEvents.slice(0, 2).map((event, eventIndex) => (
+                          <div key={eventIndex}>
+                            {event.type === 'commemorative' && (
+                              <div className="bg-orange-100 text-orange-800 text-xs p-1 rounded truncate">
+                                🎉 {event.data.name}
+                              </div>
+                            )}
+                            {event.type === 'trend' && (
+                              <div className="bg-purple-100 text-purple-800 text-xs p-1 rounded truncate">
+                                📈 {event.data.name}
+                              </div>
+                            )}
+                            {event.type === 'post' && (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <div className="cursor-pointer">
+                                    <div className={cn(
+                                      "text-xs p-1 rounded border-l-2 truncate",
+                                      getSocialColor(event.data.networks[0])
+                                    )}>
+                                      <div className="flex items-center space-x-1">
+                                        {getSocialIcon(event.data.networks[0])}
+                                        <span>{event.data.scheduledTime}</span>
+                                      </div>
+                                      <div className="font-medium truncate">
+                                        {event.data.title}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80">
+                                  <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                      <h4 className="font-semibold">{event.data.title}</h4>
+                                      <Badge variant={
+                                        event.data.status === 'published' ? 'default' :
+                                        event.data.status === 'scheduled' ? 'secondary' :
+                                        event.data.status === 'pending' ? 'destructive' : 'outline'
+                                      }>
+                                        {event.data.status === 'published' ? 'Publicado' :
+                                         event.data.status === 'scheduled' ? 'Agendado' :
+                                         event.data.status === 'pending' ? 'Pendente' : 'Rascunho'}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">
+                                      {event.data.content}
+                                    </p>
+                                    <div className="flex items-center space-x-2">
+                                      <span className="text-xs text-muted-foreground">Redes:</span>
+                                      {event.data.networks.map((network, netIndex) => (
+                                        <div key={netIndex} className="flex items-center">
+                                          {getSocialIcon(network)}
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="flex items-center justify-between pt-2 border-t">
+                                      <span className="text-xs text-muted-foreground">
+                                        {event.data.scheduledTime}
+                                      </span>
+                                      <Button size="sm" variant="outline">
+                                        <MoreHorizontal className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                            )}
+                          </div>
+                        ))}
+                        {dayEvents.length > 2 && (
+                          <div className="text-xs text-muted-foreground text-center">
+                            +{dayEvents.length - 2} mais
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
-        {/* Legend */}
-        <div className="flex items-center justify-center space-x-6 pt-4 border-t">
-          <div className="flex items-center space-x-2">
-            <PartyPopper className="h-4 w-4 text-purple-600" />
-            <span className="text-sm text-muted-foreground">Datas Comemorativas</span>
+          {/* Legend */}
+          <div className="p-4 border-t bg-muted/20">
+            <div className="flex items-center justify-center space-x-6 text-xs">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-orange-200 border-l-2 border-orange-500 rounded-sm"></div>
+                <span>Datas Comemorativas</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-purple-200 border-l-2 border-purple-500 rounded-sm"></div>
+                <span>Tendências</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-blue-200 border-l-2 border-blue-500 rounded-sm"></div>
+                <span>Posts Agendados</span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Flame className="h-4 w-4 text-orange-600" />
-            <span className="text-sm text-muted-foreground">Tendências</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4 text-primary" />
-            <span className="text-sm text-muted-foreground">Posts Agendados</span>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
