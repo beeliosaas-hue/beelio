@@ -6,94 +6,81 @@ import { Badge } from "@/components/ui/badge";
 const statsData = [
   {
     title: "Posts Criados",
-    value: "12",
-    total: "50",
-    subtitle: "de 50 posts (Plano Pro)",
-    progress: 24,
+    value: "47",
+    subtitle: "neste mês",
+    progress: 78,
+    progressText: "Progresso",
     icon: Calendar,
-    trend: "+3 esta semana",
-    color: "text-primary",
-    bgColor: "bg-accent/30",
+    trend: "+12%",
+    color: "text-blue-600",
+    bgColor: "bg-blue-100",
   },
   {
     title: "Créditos Diana",
-    value: "∞",
-    subtitle: "Ilimitado (Plano Pro)",
-    progress: 100,
+    value: "156",
+    subtitle: "disponíveis",
+    progress: 65,
+    progressText: "Progresso",
     icon: MessageCircle,
-    trend: "Plano ativo",
-    color: "text-success",
-    bgColor: "bg-success/10",
-  },
-  {
-    title: "Tendências Ativas",
-    value: "8",
-    subtitle: "Para seu segmento",
-    progress: null,
-    icon: TrendingUp,
-    trend: "2 novas hoje",
-    color: "text-orange-500",
-    bgColor: "bg-orange-500/10",
+    trend: "+25%",
+    color: "text-yellow-600",
+    bgColor: "bg-yellow-100",
   },
   {
     title: "Próxima Campanha",
     value: "Black Friday",
-    subtitle: "Em 15 dias",
+    subtitle: "em 3 dias",
     progress: null,
-    icon: Zap,
-    trend: "Preparação sugerida",
-    color: "text-purple-500",
-    bgColor: "bg-purple-500/10",
+    icon: Calendar,
+    trend: null,
+    color: "text-gray-700",
+    bgColor: "bg-gray-100",
+  },
+  {
+    title: "Tendências Ativas",
+    value: "8",
+    subtitle: "para explorar",
+    progress: null,
+    icon: TrendingUp,
+    trend: "+2%",
+    color: "text-purple-600",
+    bgColor: "bg-purple-100",
   },
 ];
 
 export function StatsCards() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {statsData.map((stat, index) => (
-        <Card key={index} className="border-border bg-card shadow-soft hover:shadow-elevation transition-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {stat.title}
-            </CardTitle>
-            <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline space-x-2 mb-2">
-              <div className="text-2xl font-bold text-foreground">
-                {stat.value}
+        <Card key={index} className="border border-gray-200 bg-white">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
-              {stat.total && (
-                <div className="text-sm text-muted-foreground">
-                  /{stat.total}
-                </div>
+              {stat.trend && (
+                <span className="text-xs text-green-600 font-medium">{stat.trend}</span>
               )}
             </div>
             
-            <p className="text-xs text-muted-foreground mb-3">
-              {stat.subtitle}
-            </p>
+            <div className="mb-2">
+              <h3 className="text-sm font-medium text-gray-600 mb-1">{stat.title}</h3>
+              <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
+              <p className="text-xs text-gray-500">{stat.subtitle}</p>
+            </div>
             
             {stat.progress !== null && (
-              <div className="space-y-2">
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>{stat.progressText}</span>
+                  <span>{stat.progress}%</span>
+                </div>
                 <Progress 
                   value={stat.progress} 
                   className="h-2"
                 />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{stat.progress}% usado</span>
-                  <span>{100 - stat.progress}% restante</span>
-                </div>
               </div>
             )}
-            
-            <div className="mt-3">
-              <Badge variant="secondary" className="text-xs">
-                {stat.trend}
-              </Badge>
-            </div>
           </CardContent>
         </Card>
       ))}

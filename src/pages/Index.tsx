@@ -1,32 +1,55 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsCards } from "@/components/dashboard/StatsCards";
-import { CalendarView } from "@/components/dashboard/CalendarView";
-import { ReportsWidget } from "@/components/dashboard/ReportsWidget";
+import { PostsCalendar } from "@/components/dashboard/PostsCalendar";
+import { ProximosPosts } from "@/components/dashboard/ProximosPosts";
+import { EstatisticasRapidas } from "@/components/dashboard/EstatisticasRapidas";
+import { InsightsDiana } from "@/components/dashboard/InsightsDiana";
+import { MelhorConteudo } from "@/components/dashboard/MelhorConteudo";
+import { ProximasAcoes } from "@/components/dashboard/ProximasAcoes";
 
 const Index = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Visão geral do seu calendário de marketing inteligente
-          </p>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Visão geral da sua estratégia de marketing
+            </p>
+          </div>
+          <div className="text-sm text-gray-500">
+            Última atualização: 14/09/2025 19:19
+          </div>
         </div>
         
         {/* Stats Cards */}
         <StatsCards />
         
-        {/* Mini Calendar View */}
-        <CalendarView />
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Calendar */}
+          <div className="lg:col-span-2">
+            <PostsCalendar />
+          </div>
+          
+          {/* Right Column - Próximos Posts */}
+          <div>
+            <ProximosPosts />
+          </div>
+        </div>
         
-        {/* Reports Section */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-foreground">
-            Relatórios Rápidos
-          </h2>
-          <ReportsWidget />
+        {/* Secondary Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <EstatisticasRapidas />
+          <InsightsDiana />
+        </div>
+        
+        {/* Bottom Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <MelhorConteudo />
+          <ProximasAcoes />
         </div>
       </div>
     </DashboardLayout>
