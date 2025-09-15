@@ -19,7 +19,9 @@ import {
   Palette, 
   MessageSquare, 
   History, 
-  Plus 
+  Plus,
+  Upload,
+  Link
 } from "lucide-react";
 
 interface BriefingFormProps {
@@ -82,10 +84,13 @@ export function BriefingForm({ onSave, onCancel, initialData }: BriefingFormProp
     specificGoal: initialData?.specificGoal || "",
     
     // 7. Diretrizes Visuais
-    brandColors: initialData?.brandColors || "",
+    brandColors: initialData?.brandColors || [],
+    logoUrl: initialData?.logoUrl || "",
+    logoFile: initialData?.logoFile || "",
     logo: initialData?.logo || "",
     existingMaterials: initialData?.existingMaterials || "",
-    visualReferences: initialData?.visualReferences || "",
+    existingMaterialsFiles: initialData?.existingMaterialsFiles || "",
+    visualReferences: initialData?.visualReferences || [],
     
     // 8. Comunicação & Conteúdo
     currentSocialMedia: initialData?.currentSocialMedia || "",
@@ -460,44 +465,191 @@ export function BriefingForm({ onSave, onCancel, initialData }: BriefingFormProp
       title: '7. Diretrizes Visuais',
       icon: Palette,
       content: (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <Label htmlFor="brandColors">Cores principais da marca</Label>
-            <Input
-              id="brandColors"
-              value={formData.brandColors}
-              onChange={(e) => updateFormData('brandColors', e.target.value)}
-              placeholder="Ex: #FFD84D, #333333, #FFFFFF"
-            />
+            <Label>Cores principais da marca</Label>
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2 min-h-[40px] p-3 border rounded-md bg-muted/30">
+                {(formData.brandColors || []).map((color: string, index: number) => (
+                  <div key={index} className="flex items-center gap-2 bg-background border rounded-md px-3 py-1">
+                    <div 
+                      className="w-4 h-4 rounded-full border" 
+                      style={{ backgroundColor: color }}
+                    />
+                    <span className="text-sm">{color}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newColors = [...(formData.brandColors || [])];
+                        newColors.splice(index, 1);
+                        updateFormData('brandColors', newColors);
+                      }}
+                      className="text-muted-foreground hover:text-destructive ml-1"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                {(!formData.brandColors || formData.brandColors.length === 0) && (
+                  <span className="text-muted-foreground text-sm">Nenhuma cor adicionada</span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  type="color"
+                  id="colorPicker"
+                  className="w-12 h-10 p-1 cursor-pointer"
+                  onChange={(e) => {
+                    const color = e.target.value;
+                    const currentColors = formData.brandColors || [];
+                    if (!currentColors.includes(color)) {
+                      updateFormData('brandColors', [...currentColors, color]);
+                    }
+                  }}
+                />
+                <Input
+                  placeholder="Ou digite uma cor (ex: #FFD84D)"
+                  className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const color = e.currentTarget.value.trim();
+                      if (color && /^#[0-9A-F]{6}$/i.test(color)) {
+                        const currentColors = formData.brandColors || [];
+                        if (!currentColors.includes(color)) {
+                          updateFormData('brandColors', [...currentColors, color]);
+                          e.currentTarget.value = '';
+                        }
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
           </div>
+
           <div>
-            <Label htmlFor="logo">Logo (upload ou link)</Label>
-            <Input
-              id="logo"
-              value={formData.logo}
-              onChange={(e) => updateFormData('logo', e.target.value)}
-              placeholder="Link para o logo ou descrição"
-            />
+            <Label>Logo</Label>
+            <div className="flex gap-2">
+              <Input
+                value={formData.logoUrl || ''}
+                onChange={(e) => updateFormData('logoUrl', e.target.value)}
+                placeholder="Cole o link do logo aqui"
+                className="flex-1"
+              />
+              <label className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer">
+                <Upload className="w-4 h-4" />
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // Here you would upload the file and get URL
+                      updateFormData('logoFile', file.name);
+                    }
+                  }}
+                />
+              </label>
+            </div>
+            {formData.logoFile && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Arquivo: {formData.logoFile}
+              </p>
+            )}
           </div>
+
           <div>
-            <Label htmlFor="existingMaterials">Materiais já existentes</Label>
-            <Textarea
-              id="existingMaterials"
-              value={formData.existingMaterials}
-              onChange={(e) => updateFormData('existingMaterials', e.target.value)}
-              placeholder="Manual de marca, apresentações, etc."
-              rows={3}
-            />
+            <Label>Materiais já existentes</Label>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Textarea
+                  value={formData.existingMaterials}
+                  onChange={(e) => updateFormData('existingMaterials', e.target.value)}
+                  placeholder="Descreva os materiais que já possui..."
+                  rows={3}
+                  className="flex-1"
+                />
+                <label className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer self-start">
+                  <Upload className="w-4 h-4" />
+                  <input
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png"
+                    className="hidden"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length > 0) {
+                        const fileNames = files.map(f => f.name).join(', ');
+                        updateFormData('existingMaterialsFiles', fileNames);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+              {formData.existingMaterialsFiles && (
+                <p className="text-sm text-muted-foreground">
+                  Arquivos: {formData.existingMaterialsFiles}
+                </p>
+              )}
+            </div>
           </div>
+
           <div>
-            <Label htmlFor="visualReferences">Referências visuais que gosta</Label>
-            <Textarea
-              id="visualReferences"
-              value={formData.visualReferences}
-              onChange={(e) => updateFormData('visualReferences', e.target.value)}
-              placeholder="Links de marcas, Pinterest, Behance, etc."
-              rows={3}
-            />
+            <Label>Referências visuais que gosta</Label>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Cole um link de referência e pressione Enter"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const link = e.currentTarget.value.trim();
+                      if (link && link.startsWith('http')) {
+                        const currentRefs = formData.visualReferences || [];
+                        if (!currentRefs.includes(link)) {
+                          updateFormData('visualReferences', [...currentRefs, link]);
+                          e.currentTarget.value = '';
+                        }
+                      }
+                    }
+                  }}
+                  className="flex-1"
+                />
+              </div>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {(formData.visualReferences || []).map((link: string, index: number) => (
+                  <div key={index} className="flex items-center gap-2 p-3 border rounded-md bg-muted/30">
+                    <Link className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <a 
+                      href={link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary hover:underline flex-1 truncate"
+                    >
+                      {link}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newRefs = [...(formData.visualReferences || [])];
+                        newRefs.splice(index, 1);
+                        updateFormData('visualReferences', newRefs);
+                      }}
+                      className="text-muted-foreground hover:text-destructive flex-shrink-0"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                {(!formData.visualReferences || formData.visualReferences.length === 0) && (
+                  <p className="text-muted-foreground text-sm text-center py-4">
+                    Nenhuma referência adicionada
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )
