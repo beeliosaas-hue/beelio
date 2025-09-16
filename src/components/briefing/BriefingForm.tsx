@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabaseSync } from "@/services/supabaseSync";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -857,7 +858,66 @@ export function BriefingForm({ onSave, onCancel, initialData }: BriefingFormProp
           Cancelar
         </Button>
         <Button
-          onClick={() => onSave(formData)}
+          onClick={async () => {
+            try {
+              // Sincronizar com Supabase
+              const briefingData = {
+                nome_marca: formData.brandName,
+                site: formData.website,
+                redes_sociais: [formData.socialMedia],
+                segmento_atuacao: formData.segment,
+                localizacao: formData.location,
+                missao: formData.mission,
+                visao: formData.vision,
+                valores: formData.values,
+                personalidade: [formData.personality],
+                tom_voz: formData.toneOfVoice,
+                cliente_ideal: formData.targetClient,
+                faixa_etaria: formData.ageRange,
+                localizacao_publico: formData.targetLocation,
+                nivel_socioeconomico: formData.socioeconomic,
+                interesses: formData.interests,
+                dores: formData.painPoints,
+                busca_solucao: formData.solutionSeeking,
+                diferenciais: formData.differentials,
+                concorrentes_diretos: JSON.stringify(formData.competitors),
+                admira_concorrentes: formData.admiredFeatures,
+                nao_repetir: formData.avoidFeatures,
+                lista_produtos: formData.products,
+                ticket_medio: parseFloat(formData.averageTicket) || 0,
+                prioridade_atual: formData.currentPriority,
+                objetivos_marketing: formData.objectives,
+                meta_especifica: formData.specificGoal,
+                cores_principais: formData.brandColors,
+                logo_url: formData.logoUrl,
+                materiais_existentes: [formData.existingMaterials],
+                referencias_visuais: formData.visualReferences,
+                redes_utilizadas: [formData.currentSocialMedia],
+                canais_preferidos: [formData.preferredChannels],
+                tipo_conteudo: formData.contentTypes,
+                marcas_admiradas: formData.admiredBrands,
+                resumo_historia: formData.brandHistory,
+                principais_conquistas: formData.achievements,
+                desafios_atuais: formData.currentChallenges,
+                oportunidades: formData.opportunities,
+                informacoes_adicionais: formData.additionalInfo,
+                nao_fazer: formData.restrictions,
+                progresso: getProgress()
+              };
+
+              if (initialData?.id) {
+                await supabaseSync.syncBriefing('update', briefingData, initialData.id);
+              } else {
+                await supabaseSync.syncBriefing('create', briefingData);
+              }
+
+              onSave(formData);
+            } catch (error) {
+              console.error('Erro ao sincronizar briefing:', error);
+              // Salvar localmente mesmo se falhar a sincronização
+              onSave(formData);
+            }
+          }}
           className="flex-1 bg-honey-gradient hover:bg-primary/90"
         >
           Salvar Briefing
