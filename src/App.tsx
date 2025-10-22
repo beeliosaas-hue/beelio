@@ -11,6 +11,7 @@ import Trends from "./pages/Trends";
 import Planner from "./pages/Planner";
 import Library from "./pages/Library";
 import PostApproval from "./pages/PostApproval";
+import Diana from "./pages/Diana";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/tendencias" element={<Trends />} />
           <Route path="/planner" element={<Planner />} />
           <Route path="/biblioteca" element={<Library />} />
+          <Route path="/diana" element={<Diana />} />
           <Route path="/aprovacao/:postId" element={<PostApproval />} />
         </Routes>
       </BrowserRouter>
