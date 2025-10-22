@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import {X, Send, Sparkles, ArrowRight, Calendar, TrendingUp, BarChart3, Palette, Paperclip, Smile, Zap, Eye, Download, Copy, Heart, ThumbsUp, Star, Camera, Play, Volume2, MessageSquare, Lightbulb, ArrowLeft} from 'lucide-react'
 
 interface DianaChatProps {
@@ -249,34 +248,22 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
     : "fixed right-0 top-0 h-full w-96 bg-white shadow-2xl z-50 flex flex-col border-l border-gray-200"
 
   return (
-    <motion.div
-      initial={isFullScreen ? { opacity: 0 } : { x: '100%' }}
-      animate={isFullScreen ? { opacity: 1 } : { x: 0 }}
-      exit={isFullScreen ? { opacity: 0 } : { x: '100%' }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className={containerClass}
-    >
+    <div className={containerClass}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50">
         <div className="flex items-center space-x-3">
           {isFullScreen && (
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors mr-2"
             >
               <ArrowLeft size={20} className="text-gray-500" />
-            </motion.button>
+            </button>
           )}
           <div className="relative">
-            <motion.div 
-              animate={{ scale: dianaActive ? [1, 1.1, 1] : 1 }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-12 h-12 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg"
-            >
+            <div className="w-12 h-12 bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
               <span className="text-xl">🐝</span>
-            </motion.div>
+            </div>
             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
           </div>
           <div>
@@ -301,28 +288,23 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
       <div className="p-4 border-b border-gray-100 bg-gray-50">
         <div className={`flex space-x-3 ${isFullScreen ? 'justify-center' : 'overflow-x-auto'}`}>
           {quickActions.map((action, index) => (
-            <motion.button
+            <button
               key={index}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
               onClick={action.action}
               className="flex-shrink-0 flex flex-col items-center p-3 bg-white rounded-xl shadow-sm hover:shadow-md transition-all min-w-[80px]"
             >
               <action.icon size={20} className="text-amber-600 mb-2" />
               <span className="text-xs text-gray-700 text-center leading-tight">{action.label}</span>
-            </motion.button>
+            </button>
           ))}
         </div>
       </div>
 
       {/* Messages */}
       <div className={`flex-1 overflow-y-auto p-4 space-y-6 bg-gray-50 ${isFullScreen ? 'max-w-4xl mx-auto w-full' : ''}`}>
-        <AnimatePresence>
-          {messages.map((message) => (
-            <motion.div
+        {messages.map((message) => (
+            <div
               key={message.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
               className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`${isFullScreen ? 'max-w-2xl' : 'max-w-[85%]'} ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
@@ -338,21 +320,9 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
                 {message.isTyping ? (
                   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                     <div className="flex space-x-2">
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
-                        className="w-3 h-3 bg-amber-400 rounded-full"
-                      />
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
-                        className="w-3 h-3 bg-amber-400 rounded-full"
-                      />
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
-                        className="w-3 h-3 bg-amber-400 rounded-full"
-                      />
+                      <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
+                      <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                     </div>
                   </div>
                 ) : (
@@ -369,10 +339,9 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
                     {message.suggestions && (
                       <div className="mt-5 space-y-3">
                         {message.suggestions.map((suggestion, index) => (
-                          <motion.div
+                          <div
                             key={index}
-                            whileHover={{ scale: 1.02 }}
-                            className="bg-gradient-to-r from-amber-50 to-yellow-50 p-4 rounded-xl border border-amber-200 cursor-pointer hover:border-amber-300 transition-all"
+                            className="bg-gradient-to-r from-amber-50 to-yellow-50 p-4 rounded-xl border border-amber-200 cursor-pointer hover:border-amber-300 transition-all hover:scale-[1.02]"
                           >
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
@@ -384,7 +353,7 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
                               </div>
                               <ArrowRight size={18} className="text-amber-600 mt-1 ml-3" />
                             </div>
-                          </motion.div>
+                          </div>
                         ))}
                       </div>
                     )}
@@ -393,10 +362,9 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
                     {message.cards && (
                       <div className="mt-5 space-y-4">
                         {message.cards.map((card) => (
-                          <motion.div
+                          <div
                             key={card.id}
-                            whileHover={{ scale: 1.02 }}
-                            className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"
+                            className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:scale-[1.02] transition-transform"
                           >
                             <div className="flex space-x-4">
                               <img 
@@ -430,7 +398,7 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
                                 </div>
                               </div>
                             </div>
-                          </motion.div>
+                          </div>
                         ))}
                       </div>
                     )}
@@ -531,9 +499,8 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
                   </div>
                 )}
               </div>
-            </motion.div>
+            </div>
           ))}
-        </AnimatePresence>
         <div ref={messagesEndRef} />
       </div>
 
@@ -541,21 +508,17 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
       <div className={`p-4 border-t border-gray-200 bg-white ${isFullScreen ? 'max-w-4xl mx-auto w-full' : ''}`}>
         <div className="flex items-end space-x-3">
           <div className="flex space-x-2">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+            <button
               onClick={handleFileUpload}
-              className="p-2 text-gray-500 hover:text-amber-600 transition-colors"
+              className="p-2 text-gray-500 hover:text-amber-600 transition-colors hover:scale-110"
             >
               <Paperclip size={20} />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-2 text-gray-500 hover:text-amber-600 transition-colors"
+            </button>
+            <button
+              className="p-2 text-gray-500 hover:text-amber-600 transition-colors hover:scale-110"
             >
               <Camera size={20} />
-            </motion.button>
+            </button>
           </div>
           
           <div className="flex-1 relative">
@@ -575,14 +538,12 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
           </div>
           
           <div className="flex space-x-2">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => handleSendMessage()}
-              className="p-3 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
+              className="p-3 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors hover:scale-105"
             >
               <Send size={20} />
-            </motion.button>
+            </button>
           </div>
         </div>
         
@@ -606,7 +567,7 @@ const DianaChat: React.FC<DianaChatProps> = ({ onClose, isFullScreen = false }) 
         accept="*/*"
         multiple
       />
-    </motion.div>
+    </div>
   )
 }
 
