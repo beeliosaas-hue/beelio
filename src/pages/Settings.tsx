@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { 
   FileText, 
@@ -23,8 +21,14 @@ import {
   Settings as SettingsIcon,
   Trash2,
   FileDown,
-  History
+  History,
+  User,
+  CreditCard,
+  Link as LinkIcon,
+  Bell,
+  Users
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Collapsible,
   CollapsibleContent,
@@ -43,156 +47,99 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
+type MenuSection = "conta" | "assinatura" | "integracoes" | "notificacoes" | "equipe" | "politicas" | "privacidade";
+
 interface Policy {
   id: string;
   title: string;
   icon: any;
-  defaultContent: string;
-  fields: { label: string; placeholder: string; key: string }[];
+  content: string;
 }
 
-const policies: Policy[] = [
+const officialPolicies: Policy[] = [
   {
     id: "privacy",
     title: "Política de Privacidade",
-    icon: FileText,
-    defaultContent: `A sua privacidade é importante para nós.
-As informações pessoais fornecidas são coletadas apenas para melhorar sua experiência, personalizar nossos serviços e cumprir obrigações legais.
-Não compartilhamos seus dados com terceiros sem o seu consentimento. Todas as informações são tratadas de acordo com a Lei Geral de Proteção de Dados (LGPD) e demais legislações aplicáveis.
-
-Responsável pelo Tratamento de Dados: [NOME DA EMPRESA]
-Contato para questões de privacidade: [E-MAIL DE SUPORTE]`,
-    fields: [
-      { label: "Nome da Empresa", placeholder: "Ex: Beelio Marketing", key: "company_name" },
-      { label: "E-mail de Suporte", placeholder: "suporte@empresa.com", key: "support_email" }
-    ]
+    icon: Shield,
+    content: `A sua privacidade é importante para nós.
+As informações pessoais fornecidas são utilizadas exclusivamente para melhorar sua experiência, personalizar nossos serviços e cumprir obrigações legais.
+Não compartilhamos seus dados com terceiros sem o seu consentimento. Todas as informações são tratadas de acordo com a LGPD e legislações aplicáveis.`
   },
   {
     id: "cookies",
     title: "Política de Cookies",
     icon: Cookie,
-    defaultContent: `Utilizamos cookies para melhorar o desempenho do nosso site, personalizar conteúdos e analisar o tráfego.
-Você pode aceitar todos os cookies, recusar ou personalizar suas preferências. Nenhum dado será coletado sem o seu consentimento prévio.
+    content: `O Beelio utiliza cookies e tecnologias semelhantes para:
+- Garantir o funcionamento da plataforma.
+- Personalizar a experiência do usuário.
+- Coletar dados estatísticos para melhoria contínua.
 
-Empresa Controladora: [NOME DA EMPRESA]
-Contato: [E-MAIL DE SUPORTE]`,
-    fields: [
-      { label: "Nome da Empresa", placeholder: "Ex: Beelio Marketing", key: "company_name" },
-      { label: "E-mail de Suporte", placeholder: "suporte@empresa.com", key: "support_email" }
-    ]
+O usuário pode configurar seu navegador para recusar cookies, mas isso pode afetar algumas funcionalidades.`
   },
   {
     id: "terms",
     title: "Termos de Uso",
-    icon: Shield,
-    defaultContent: `Ao acessar e utilizar nossa plataforma, você concorda em seguir as condições aqui estabelecidas.
-É vedado o uso para fins ilícitos, fraudulentos ou que possam comprometer a segurança do sistema.
-A [NOME DA EMPRESA] não se responsabiliza por usos indevidos e se reserva o direito de atualizar estes termos a qualquer momento.
+    icon: FileText,
+    content: `Ao acessar e utilizar o Beelio, você concorda com os seguintes termos:
+- Utilizar a plataforma de forma ética e em conformidade com a legislação aplicável.
+- Não compartilhar acesso ou credenciais com terceiros sem autorização.
+- Reconhecer que o conteúdo do Beelio é protegido por direitos autorais.
 
-Última atualização: [DATA]`,
-    fields: [
-      { label: "Nome da Empresa", placeholder: "Ex: Beelio Marketing", key: "company_name" },
-      { label: "Data de Atualização", placeholder: "DD/MM/AAAA", key: "update_date" }
-    ]
+O descumprimento destes termos pode resultar em suspensão ou cancelamento do acesso.`
   },
   {
     id: "refund",
     title: "Política de Reembolso e Cancelamento",
     icon: DollarSign,
-    defaultContent: `O usuário pode solicitar cancelamento da assinatura a qualquer momento.
-Nos casos de cobrança indevida ou falha técnica comprovada, será realizado reembolso integral no prazo máximo de [X DIAS] dias.
-Após esse período, cancelamentos não geram reembolso proporcional, salvo exceções previstas em lei.
-
-Canal para solicitação: [E-MAIL DE SUPORTE]
-Responsável financeiro: [NOME DO RESPONSÁVEL/SETOR]`,
-    fields: [
-      { label: "Prazo para Reembolso (dias)", placeholder: "Ex: 7", key: "refund_days" },
-      { label: "E-mail de Suporte", placeholder: "suporte@empresa.com", key: "support_email" },
-      { label: "Responsável Financeiro", placeholder: "Nome/Setor", key: "financial_responsible" }
-    ]
+    content: `O Beelio oferece:
+- Prazo de 7 dias corridos para solicitação de reembolso, conforme o Código de Defesa do Consumidor.
+- Cancelamentos após esse prazo não geram direito a reembolso, mas o usuário pode manter acesso até o final do ciclo pago.`
   },
   {
     id: "support",
     title: "Política de Atendimento ao Cliente",
     icon: Headphones,
-    defaultContent: `Nosso compromisso é oferecer suporte ágil e humanizado.
-
-Canais oficiais de contato: [E-MAIL / WHATSAPP / TELEFONE]
-Horário de atendimento: [HORÁRIO]
-Prazo máximo de resposta: [X HORAS/DIAS]
-Responsável pelo suporte: [NOME/SETOR]`,
-    fields: [
-      { label: "Canais de Contato", placeholder: "E-mail, WhatsApp, Telefone", key: "contact_channels" },
-      { label: "Horário de Atendimento", placeholder: "Seg-Sex 9h-18h", key: "business_hours" },
-      { label: "Prazo de Resposta", placeholder: "24 horas", key: "response_time" },
-      { label: "Responsável", placeholder: "Nome/Setor", key: "support_responsible" }
-    ]
+    content: `Nosso compromisso é oferecer suporte ágil e eficiente:
+- Canais oficiais: e-mail (beelio.saas@gmail.com) e chat dentro da plataforma.
+- Tempo médio de resposta: até 24h em dias úteis.
+- Todo atendimento será feito de forma respeitosa, clara e objetiva.`
   },
   {
     id: "security",
     title: "Política de Segurança da Informação",
     icon: Lock,
-    defaultContent: `Adotamos medidas técnicas e administrativas para proteger dados e sistemas contra acessos não autorizados, perda ou vazamento.
-Todos os acessos internos são controlados e monitorados.
-Em caso de incidente de segurança, o usuário será notificado em até [X HORAS] após a identificação.
+    content: `O Beelio adota medidas rigorosas para proteger seus dados:
+- Criptografia em trânsito e em repouso.
+- Monitoramento contínuo de segurança.
+- Acesso restrito a informações sensíveis apenas por pessoal autorizado.
 
-Responsável pela segurança da informação: [NOME / SETOR]
-Contato de emergência: [E-MAIL / TELEFONE]`,
-    fields: [
-      { label: "Prazo de Notificação (horas)", placeholder: "Ex: 24", key: "notification_hours" },
-      { label: "Responsável pela Segurança", placeholder: "Nome/Setor", key: "security_responsible" },
-      { label: "Contato de Emergência", placeholder: "E-mail/Telefone", key: "emergency_contact" }
-    ]
+Em caso de incidente, o usuário será notificado imediatamente, conforme exigido pela LGPD.`
   },
   {
     id: "intellectual",
     title: "Política de Propriedade Intelectual",
     icon: Copyright,
-    defaultContent: `Todos os conteúdos, softwares, marcas e materiais disponibilizados são de propriedade exclusiva da [NOME DA EMPRESA].
-É proibida a cópia, distribuição ou uso não autorizado para fins comerciais ou pessoais.
-Qualquer infração poderá resultar em medidas judiciais cabíveis.
-
-Responsável legal: [NOME DO RESPONSÁVEL / SETOR]
-Contato: [E-MAIL DE SUPORTE]`,
-    fields: [
-      { label: "Nome da Empresa", placeholder: "Ex: Beelio Marketing", key: "company_name" },
-      { label: "Responsável Legal", placeholder: "Nome/Setor", key: "legal_responsible" },
-      { label: "E-mail de Suporte", placeholder: "suporte@empresa.com", key: "support_email" }
-    ]
+    content: `Todo o conteúdo, marca, design, código-fonte e funcionalidades do Beelio são de propriedade exclusiva da Beelio Tecnologia LTDA.
+- É proibida a reprodução, distribuição ou modificação sem autorização expressa.
+- O uso indevido da marca ou dos materiais poderá gerar responsabilização civil e criminal.`
   },
   {
     id: "communication",
     title: "Política de Comunicação & Redes Sociais",
     icon: MessageSquare,
-    defaultContent: `A comunicação da [NOME DA EMPRESA] reflete seus valores de respeito, transparência e ética.
-Não serão tolerados comentários ofensivos, discriminatórios ou que incitem ódio em nossos canais digitais.
-Reservamo-nos o direito de remover conteúdos que infrinjam estas regras.
-
-Responsável pela comunicação: [NOME/SETOR]
-Contato oficial: [E-MAIL / INSTAGRAM / LINKEDIN]`,
-    fields: [
-      { label: "Nome da Empresa", placeholder: "Ex: Beelio Marketing", key: "company_name" },
-      { label: "Responsável pela Comunicação", placeholder: "Nome/Setor", key: "communication_responsible" },
-      { label: "Contatos Oficiais", placeholder: "E-mail, Instagram, LinkedIn", key: "official_contacts" }
-    ]
+    content: `O Beelio mantém presença ativa em redes sociais para compartilhar novidades, dicas e informações relevantes.
+- As interações devem ser respeitosas, sem ofensas ou discursos de ódio.
+- Comentários impróprios poderão ser removidos.
+- As redes sociais não substituem os canais oficiais de suporte.`
   }
 ];
 
-function PolicyCard({ policy }: { policy: Policy }) {
+function OfficialPolicyCard({ policy }: { policy: Policy }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [content, setContent] = useState(policy.defaultContent);
-  const [fields, setFields] = useState<Record<string, string>>({});
-
-  const handleFieldChange = (key: string, value: string) => {
-    setFields(prev => ({ ...prev, [key]: value }));
-  };
 
   const handleDownloadPDF = () => {
     toast.success(`${policy.title} baixado com sucesso!`);
-  };
-
-  const handleSave = () => {
-    toast.success(`${policy.title} salvo com sucesso!`);
+    // Implementar download real em PDF
   };
 
   return (
@@ -205,7 +152,7 @@ function PolicyCard({ policy }: { policy: Policy }) {
                 <div className="p-2 bg-primary/10 rounded-lg">
                   <policy.icon className="h-5 w-5 text-primary" />
                 </div>
-                <CardTitle className="text-lg text-foreground">{policy.title}</CardTitle>
+                <CardTitle className="text-base font-medium text-foreground">{policy.title}</CardTitle>
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -215,60 +162,51 @@ function PolicyCard({ policy }: { policy: Policy }) {
                     e.stopPropagation();
                     handleDownloadPDF();
                   }}
+                  className="hover:text-primary"
                 >
                   <Download className="h-4 w-4" />
                 </Button>
                 {isOpen ? (
-                  <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 )}
               </div>
             </div>
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <CardContent className="space-y-4 pt-0">
-            {/* Dynamic Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {policy.fields.map((field) => (
-                <div key={field.key} className="space-y-2">
-                  <Label htmlFor={`${policy.id}-${field.key}`}>{field.label}</Label>
-                  <Input
-                    id={`${policy.id}-${field.key}`}
-                    placeholder={field.placeholder}
-                    value={fields[field.key] || ""}
-                    onChange={(e) => handleFieldChange(field.key, e.target.value)}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Content Editor */}
-            <div className="space-y-2">
-              <Label htmlFor={`${policy.id}-content`}>Conteúdo da Política</Label>
-              <Textarea
-                id={`${policy.id}-content`}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={12}
-                className="font-mono text-sm"
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setContent(policy.defaultContent)}>
-                Restaurar Padrão
-              </Button>
-              <Button onClick={handleSave} className="bg-primary text-primary-foreground">
-                Salvar Alterações
-              </Button>
+          <CardContent className="pt-0">
+            <div className="text-sm text-foreground whitespace-pre-line leading-relaxed">
+              {policy.content}
             </div>
           </CardContent>
         </CollapsibleContent>
       </Card>
     </Collapsible>
+  );
+}
+
+function PoliciesTab() {
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <Card className="border-border bg-card">
+        <CardContent className="pt-6">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            As políticas oficiais do Beelio foram desenvolvidas para garantir transparência, segurança e conformidade legal. 
+            Você pode fazer o download em PDF a qualquer momento.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Policies List */}
+      <div className="space-y-3">
+        {officialPolicies.map((policy) => (
+          <OfficialPolicyCard key={policy.id} policy={policy} />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -483,35 +421,153 @@ function PrivacyTab() {
   );
 }
 
+function ContaTab() {
+  return (
+    <div className="space-y-6">
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Informações da Conta</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome</Label>
+              <Input id="name" defaultValue="João Silva" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" defaultValue="joao@empresa.com" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="company">Empresa</Label>
+              <Input id="company" defaultValue="Minha Empresa LTDA" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefone</Label>
+              <Input id="phone" defaultValue="+55 11 99999-9999" />
+            </div>
+          </div>
+          <Button className="bg-primary text-primary-foreground">Salvar Alterações</Button>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Alterar Senha</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="current-password">Senha Atual</Label>
+            <Input id="current-password" type="password" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="new-password">Nova Senha</Label>
+            <Input id="new-password" type="password" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password">Confirmar Nova Senha</Label>
+            <Input id="confirm-password" type="password" />
+          </div>
+          <Button className="bg-primary text-primary-foreground">Alterar Senha</Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function Settings() {
+  const [activeSection, setActiveSection] = useState<MenuSection>("conta");
+
+  const menuItems = [
+    { id: "conta" as MenuSection, label: "Conta", icon: User },
+    { id: "assinatura" as MenuSection, label: "Assinatura", icon: CreditCard },
+    { id: "integracoes" as MenuSection, label: "Integrações", icon: LinkIcon },
+    { id: "notificacoes" as MenuSection, label: "Notificações", icon: Bell },
+    { id: "equipe" as MenuSection, label: "Equipe", icon: Users },
+    { id: "politicas" as MenuSection, label: "Políticas", icon: FileText },
+    { id: "privacidade" as MenuSection, label: "Privacidade e Dados", icon: Shield },
+  ];
+
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Gerencie políticas e configurações de privacidade
-          </p>
+      <div className="flex gap-6">
+        {/* Sidebar Menu */}
+        <aside className="w-64 flex-shrink-0">
+          <Card className="border-border bg-card">
+            <CardContent className="p-2">
+              <nav className="space-y-1">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveSection(item.id)}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                      activeSection === item.id
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </nav>
+            </CardContent>
+          </Card>
+        </aside>
+
+        {/* Main Content */}
+        <div className="flex-1">
+          {activeSection === "conta" && <ContaTab />}
+          {activeSection === "assinatura" && (
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle>Assinatura</CardTitle>
+                <CardDescription>Gerencie seu plano e faturamento</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Conteúdo em desenvolvimento...</p>
+              </CardContent>
+            </Card>
+          )}
+          {activeSection === "integracoes" && (
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle>Integrações</CardTitle>
+                <CardDescription>Conecte suas redes sociais e ferramentas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Conteúdo em desenvolvimento...</p>
+              </CardContent>
+            </Card>
+          )}
+          {activeSection === "notificacoes" && (
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle>Notificações</CardTitle>
+                <CardDescription>Configure suas preferências de notificação</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Conteúdo em desenvolvimento...</p>
+              </CardContent>
+            </Card>
+          )}
+          {activeSection === "equipe" && (
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle>Equipe</CardTitle>
+                <CardDescription>Gerencie membros e permissões</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">Conteúdo em desenvolvimento...</p>
+              </CardContent>
+            </Card>
+          )}
+          {activeSection === "politicas" && <PoliciesTab />}
+          {activeSection === "privacidade" && <PrivacyTab />}
         </div>
-
-        {/* Tabs */}
-        <Tabs defaultValue="policies" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="policies">Políticas</TabsTrigger>
-            <TabsTrigger value="privacy">Privacidade e Dados</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="policies" className="space-y-4 mt-6">
-            {policies.map((policy) => (
-              <PolicyCard key={policy.id} policy={policy} />
-            ))}
-          </TabsContent>
-
-          <TabsContent value="privacy" className="mt-6">
-            <PrivacyTab />
-          </TabsContent>
-        </Tabs>
       </div>
     </DashboardLayout>
   );
