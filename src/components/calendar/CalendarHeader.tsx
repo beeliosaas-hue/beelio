@@ -1,4 +1,4 @@
-import { Download, Plus, Calendar as CalendarIcon } from "lucide-react";
+import { Download, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,7 +6,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 interface CalendarHeaderProps {
   activeTab: "calendar" | "holidays";
   onTabChange: (tab: "calendar" | "holidays") => void;
-  onCreatePost: () => void;
   onSchedulePost: () => void;
   onExportCalendar: () => void;
 }
@@ -14,7 +13,6 @@ interface CalendarHeaderProps {
 export function CalendarHeader({ 
   activeTab, 
   onTabChange, 
-  onCreatePost, 
   onSchedulePost, 
   onExportCalendar 
 }: CalendarHeaderProps) {
@@ -30,14 +28,6 @@ export function CalendarHeader({
         </div>
         
         <div className="flex items-center space-x-3">
-          <Button
-            onClick={onCreatePost}
-            className="bg-warning hover:bg-warning/90 text-warning-foreground font-medium"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Criar Post Rápido
-          </Button>
-          
           <Button
             onClick={onSchedulePost}
             className="bg-success hover:bg-success/90 text-success-foreground font-medium"

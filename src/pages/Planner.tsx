@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Lightbulb, Target, Calendar, Zap, CheckCircle, Instagram, Facebook, Twitter, Linkedin } from "lucide-react";
+import { Lightbulb, Target, Calendar, Zap, CheckCircle, Instagram, Facebook, Linkedin, Youtube, Music, Edit2, Trash2 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 const Planner = () => {
@@ -22,15 +22,11 @@ const Planner = () => {
   const socialChannels = [
     { id: "instagram", label: "Instagram", icon: Instagram, color: "text-pink-500" },
     { id: "facebook", label: "Facebook", icon: Facebook, color: "text-blue-600" },
+    { id: "tiktok", label: "TikTok", icon: Music, color: "text-slate-900" },
     { id: "linkedin", label: "LinkedIn", icon: Linkedin, color: "text-blue-700" },
-    { id: "twitter", label: "Twitter", icon: Twitter, color: "text-blue-400" }
+    { id: "youtube", label: "YouTube", icon: Youtube, color: "text-red-600" }
   ];
 
-  const durations = [
-    { id: "7", label: "7 dias", description: "Campanha rápida" },
-    { id: "14", label: "14 dias", description: "Campanha média" },
-    { id: "30", label: "30 dias", description: "Campanha completa" }
-  ];
 
   const toggleChannel = (channelId: string) => {
     if (channels.includes(channelId)) {
@@ -149,7 +145,7 @@ const Planner = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   {socialChannels.map((channel) => (
                     <button
                       key={channel.id}
@@ -176,21 +172,23 @@ const Planner = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {durations.map((dur) => (
-                    <button
-                      key={dur.id}
-                      onClick={() => setDuration(dur.id)}
-                      className={`p-4 rounded-lg border-2 transition-smooth text-center ${
-                        duration === dur.id
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                    >
-                      <h3 className="font-semibold text-lg">{dur.label}</h3>
-                      <p className="text-sm text-muted-foreground">{dur.description}</p>
-                    </button>
-                  ))}
+                <div className="space-y-2">
+                  <label htmlFor="duration" className="text-sm font-medium">
+                    Quantos dias durará sua campanha?
+                  </label>
+                  <input
+                    id="duration"
+                    type="number"
+                    min="1"
+                    max="365"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    placeholder="Ex: 7, 14, 30..."
+                    className="w-full px-4 py-3 rounded-lg border-2 border-border focus:border-primary focus:outline-none transition-smooth"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Recomendamos entre 7 e 30 dias para melhores resultados
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -243,7 +241,7 @@ const Planner = () => {
 
                   <div className="space-y-3">
                     {mockPlan.slice(0, parseInt(duration) / 2).map((post, index) => (
-                      <div key={index} className="flex items-center gap-4 p-4 border border-border rounded-lg hover:shadow-soft transition-smooth">
+                      <div key={index} className="flex items-center gap-4 p-4 border border-border rounded-lg hover:shadow-soft transition-smooth group">
                         <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                           <span className="font-semibold text-primary">D{post.day}</span>
                         </div>
@@ -258,9 +256,16 @@ const Planner = () => {
                             📱 {post.platform}
                           </p>
                         </div>
-                        <Button variant="outline" size="sm">
-                          Editar
-                        </Button>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-smooth">
+                          <Button variant="outline" size="sm">
+                            <Edit2 className="h-4 w-4 mr-1" />
+                            Editar
+                          </Button>
+                          <Button variant="destructive" size="sm">
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Excluir
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>

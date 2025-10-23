@@ -30,7 +30,6 @@ const Calendar = () => {
       <CalendarHeader
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        onCreatePost={handleCreatePost}
         onSchedulePost={handleSchedulePost}
         onExportCalendar={handleExportCalendar}
       />

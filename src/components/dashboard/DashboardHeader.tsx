@@ -1,4 +1,4 @@
-import { Bell, HelpCircle, Plus, User } from "lucide-react";
+import { Bell, HelpCircle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -24,16 +24,6 @@ export function DashboardHeader() {
           />
         </div>
 
-      {/* Center Action */}
-      <div className="flex-1 flex justify-center">
-        <Button 
-          size="lg" 
-          className="bg-honey-gradient hover:bg-primary/90 text-primary-foreground font-semibold shadow-soft px-6 py-2.5 rounded-lg transition-smooth"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Criar Post Rápido
-        </Button>
-      </div>
 
       {/* Right Actions */}
       <div className="flex items-center space-x-4">

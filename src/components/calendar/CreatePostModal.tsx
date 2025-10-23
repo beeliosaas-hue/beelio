@@ -19,9 +19,9 @@ interface CreatePostModalProps {
 const socialNetworks = [
   { id: "facebook", name: "Facebook", icon: Facebook, color: "text-blue-600", bgColor: "bg-blue-50" },
   { id: "instagram", name: "Instagram", icon: Instagram, color: "text-purple-600", bgColor: "bg-purple-50" },
+  { id: "tiktok", name: "TikTok", icon: Music, color: "text-slate-900", bgColor: "bg-slate-50" },
   { id: "linkedin", name: "LinkedIn", icon: Linkedin, color: "text-blue-700", bgColor: "bg-blue-50" },
   { id: "youtube", name: "YouTube", icon: Youtube, color: "text-red-600", bgColor: "bg-red-50" },
-  { id: "tiktok", name: "TikTok", icon: Music, color: "text-slate-900", bgColor: "bg-slate-50" },
 ];
 
 export function CreatePostModal({ isOpen, onClose, mode }: CreatePostModalProps) {
