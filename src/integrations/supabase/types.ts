@@ -476,6 +476,45 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          admin_response: string | null
+          created_at: string | null
+          description: string
+          id: string
+          priority: string
+          responded_at: string | null
+          status: string
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_response?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          priority: string
+          responded_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_response?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          priority?: string
+          responded_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       tendencias: {
         Row: {
           categoria: string | null

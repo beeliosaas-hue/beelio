@@ -12,6 +12,7 @@ import {
   ChevronRight,
   TrendingUp,
   Lightbulb,
+  Headphones,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,11 @@ const navigationItems = [
     title: "Relatórios",
     url: "/relatorios",
     icon: BarChart3,
+  },
+  {
+    title: "Suporte 24/7",
+    url: "/suporte",
+    icon: Headphones,
   },
   {
     title: "Configurações",
