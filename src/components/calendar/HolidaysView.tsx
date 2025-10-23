@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Calendar, Plus, Heart, Briefcase, GraduationCap, Star } from "lucide-react";
+import { Calendar, Plus, CalendarPlus, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const years = ["2025", "2026", "2027"];
 
@@ -120,6 +123,16 @@ const seasonalDates = {
 
 export function HolidaysView() {
   const [selectedYear, setSelectedYear] = useState("2025");
+  const navigate = useNavigate();
+
+  const handleAddToCalendar = (eventName: string) => {
+    toast.success(`"${eventName}" adicionado ao calendário!`);
+  };
+
+  const handleCreateCampaign = (eventName: string) => {
+    navigate("/planner", { state: { campaignTopic: eventName } });
+    toast.success(`Criando campanha para "${eventName}"...`);
+  };
 
   const getHolidaysByMonth = (holidays: any[]) => {
     const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
@@ -184,9 +197,35 @@ export function HolidaysView() {
                         <Badge variant="outline" className="text-purple-600 border-purple-200 text-xs">
                           Sazonal
                         </Badge>
-                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                          <Plus className="h-3 w-3" />
-                        </Button>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-60 p-2" align="end">
+                            <div className="space-y-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-full justify-start"
+                                onClick={() => handleAddToCalendar(holiday.name)}
+                              >
+                                <CalendarPlus className="h-4 w-4 mr-2" />
+                                Adicionar ao Calendário
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-full justify-start"
+                                onClick={() => handleCreateCampaign(holiday.name)}
+                              >
+                                <Lightbulb className="h-4 w-4 mr-2" />
+                                Criar Campanha (Planner IA)
+                              </Button>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     </div>
                   </div>
@@ -225,9 +264,35 @@ export function HolidaysView() {
                         <Badge variant="outline" className="text-purple-600 border-purple-200 text-xs">
                           Sazonal
                         </Badge>
-                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                          <Plus className="h-3 w-3" />
-                        </Button>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-60 p-2" align="end">
+                            <div className="space-y-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-full justify-start"
+                                onClick={() => handleAddToCalendar(date.name)}
+                              >
+                                <CalendarPlus className="h-4 w-4 mr-2" />
+                                Adicionar ao Calendário
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-full justify-start"
+                                onClick={() => handleCreateCampaign(date.name)}
+                              >
+                                <Lightbulb className="h-4 w-4 mr-2" />
+                                Criar Campanha (Planner IA)
+                              </Button>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     </div>
                   </div>

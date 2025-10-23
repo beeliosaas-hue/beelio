@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Filter, Instagram, Facebook, Linkedin, Youtube, Calendar as CalendarIcon, MoreHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, Instagram, Facebook, Linkedin, Youtube, Music, Calendar as CalendarIcon, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -74,6 +74,7 @@ const getSocialIcon = (network: string) => {
     case "instagram": return <Instagram className="h-3 w-3" />;
     case "linkedin": return <Linkedin className="h-3 w-3" />;
     case "youtube": return <Youtube className="h-3 w-3" />;
+    case "tiktok": return <Music className="h-3 w-3" />;
     default: return <Instagram className="h-3 w-3" />;
   }
 };
@@ -84,6 +85,7 @@ const getSocialColor = (network: string) => {
     case "instagram": return "bg-purple-100 text-purple-800 border-purple-200";
     case "linkedin": return "bg-blue-100 text-blue-800 border-blue-200";
     case "youtube": return "bg-red-100 text-red-800 border-red-200";
+    case "tiktok": return "bg-slate-100 text-slate-800 border-slate-200";
     default: return "bg-gray-100 text-gray-800 border-gray-200";
   }
 };
@@ -184,9 +186,10 @@ export function ModernCalendarView({ onCreatePost }: ModernCalendarViewProps) {
             <SelectContent>
               <SelectItem value="all">Todos os Canais</SelectItem>
               <SelectItem value="instagram">Instagram</SelectItem>
-              <SelectItem value="facebook">Facebook</SelectItem>
               <SelectItem value="linkedin">LinkedIn</SelectItem>
+              <SelectItem value="facebook">Facebook</SelectItem>
               <SelectItem value="youtube">YouTube</SelectItem>
+              <SelectItem value="tiktok">TikTok</SelectItem>
             </SelectContent>
           </Select>
           
