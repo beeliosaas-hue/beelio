@@ -12,6 +12,8 @@ import Planner from "./pages/Planner";
 import Library from "./pages/Library";
 import PostApproval from "./pages/PostApproval";
 import Diana from "./pages/Diana";
+import Reports from "./pages/Reports";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/biblioteca" element={<Library />} />
           <Route path="/diana" element={<Diana />} />
           <Route path="/aprovacao/:postId" element={<PostApproval />} />
+          <Route path="/relatorios" element={<Reports />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
