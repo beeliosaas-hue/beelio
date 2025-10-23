@@ -213,10 +213,12 @@ function PoliciesTab() {
 function PrivacyTab() {
   const [cookiesEssential, setCookiesEssential] = useState(true);
   const [cookiesMarketing, setCookiesMarketing] = useState(false);
-  const [notificationsPush, setNotificationsPush] = useState(true);
+  const [cookiesAnalytics, setCookiesAnalytics] = useState(true);
+  const [emailNotifications, setEmailNotifications] = useState(true);
   const [requestHistory] = useState([
-    { date: "15/01/2025", type: "Exportação", status: "Concluído" },
-    { date: "10/12/2024", type: "Alteração", status: "Concluído" },
+    { date: "2024-01-15", type: "Exportação", status: "Concluído", icon: Download },
+    { date: "2024-01-10", type: "Alteração", status: "Concluído", icon: FileDown },
+    { date: "2024-01-05", type: "Visualização", status: "Concluído", icon: History },
   ]);
 
   const handleExportData = () => {
@@ -229,115 +231,121 @@ function PrivacyTab() {
 
   return (
     <div className="space-y-6">
-      {/* Intro Text */}
-      <Card className="border-border bg-gradient-to-r from-primary/5 to-primary/10">
-        <CardHeader>
-          <CardTitle className="text-foreground">Privacidade e Dados</CardTitle>
-          <CardDescription>
-            Na Beelio, você tem total controle sobre suas informações pessoais.
-            Seus dados são coletados apenas para oferecer a melhor experiência possível e nunca são vendidos a terceiros.
-            Você pode a qualquer momento revisar, corrigir, exportar ou excluir permanentemente suas informações.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-sm text-muted-foreground space-y-1">
-            <p><strong>Encarregado de Dados (DPO):</strong> João Silva</p>
-            <p><strong>Contato:</strong> dpo@beelio.com.br</p>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Meus Dados */}
       <Card className="border-border bg-card">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Database className="h-5 w-5 text-primary" />
-            <CardTitle className="text-foreground">Meus Dados</CardTitle>
-          </div>
+          <CardTitle className="text-foreground">Meus Dados</CardTitle>
           <CardDescription>
-            Atualmente coletamos e armazenamos os seguintes dados
+            Na Beelio, você tem total controle sobre suas informações pessoais. Seus dados são coletados apenas para oferecer a melhor experiência possível e nunca são vendidos a terceiros.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>• Nome completo e e-mail</li>
-            <li>• Informações de perfil e preferências</li>
-            <li>• Posts criados e agendados</li>
-            <li>• Briefings e brandings salvos</li>
-            <li>• Histórico de interações com a Diana IA</li>
-            <li>• Arquivos enviados para a biblioteca</li>
-          </ul>
-          <p className="text-sm text-muted-foreground mt-4">
-            Essas informações são utilizadas apenas para personalizar sua experiência e melhorar nossos serviços.
-          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <h4 className="font-semibold text-foreground mb-2">Dados atualmente armazenados:</h4>
+            <ul className="space-y-1 text-sm text-blue-900">
+              <li>• Informações de perfil (nome, email, empresa)</li>
+              <li>• Preferências de notificação</li>
+              <li>• Histórico de posts e campanhas</li>
+              <li>• Dados de uso da plataforma</li>
+              <li>• Configurações de integração</li>
+            </ul>
+          </div>
+          <div className="text-sm text-muted-foreground space-y-1">
+            <p><strong>Encarregado de Dados (DPO):</strong> privacy@beelio.com</p>
+            <p><strong>Contato:</strong> dpo@beelio.com</p>
+          </div>
         </CardContent>
       </Card>
 
       {/* Gerenciar Permissões */}
       <Card className="border-border bg-card">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <SettingsIcon className="h-5 w-5 text-primary" />
-            <CardTitle className="text-foreground">Gerenciar Permissões</CardTitle>
-          </div>
+          <CardTitle className="text-foreground">Gerenciar Permissões</CardTitle>
           <CardDescription>
-            Você pode alterar suas preferências a qualquer momento
+            Você pode alterar suas preferências de privacidade a qualquer momento.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between py-3 border-b border-border">
             <div className="space-y-0.5">
-              <Label htmlFor="cookies-essential">Cookies Essenciais</Label>
-              <p className="text-sm text-muted-foreground">Obrigatórios para o funcionamento do site</p>
+              <Label className="text-base font-medium text-foreground">Cookies Essenciais</Label>
+              <p className="text-sm text-muted-foreground">Necessários para o funcionamento básico da plataforma</p>
             </div>
-            <Switch
-              id="cookies-essential"
-              checked={cookiesEssential}
-              disabled
-            />
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground bg-accent px-2 py-1 rounded">Obrigatório</span>
+              <Switch
+                checked={cookiesEssential}
+                disabled
+                className="data-[state=checked]:bg-[#FDB022]"
+              />
+            </div>
           </div>
-          <div className="flex items-center justify-between">
+
+          <div className="flex items-center justify-between py-3 border-b border-border">
             <div className="space-y-0.5">
-              <Label htmlFor="cookies-marketing">Cookies de Marketing</Label>
-              <p className="text-sm text-muted-foreground">Ajudam a personalizar anúncios e conteúdo</p>
+              <Label className="text-base font-medium text-foreground">Cookies de Marketing</Label>
+              <p className="text-sm text-muted-foreground">Utilizados para personalizar anúncios e conteúdo</p>
             </div>
             <Switch
-              id="cookies-marketing"
               checked={cookiesMarketing}
               onCheckedChange={setCookiesMarketing}
+              className="data-[state=checked]:bg-[#FDB022]"
             />
           </div>
-          <div className="flex items-center justify-between">
+
+          <div className="flex items-center justify-between py-3 border-b border-border">
             <div className="space-y-0.5">
-              <Label htmlFor="notifications-push">Notificações Push</Label>
-              <p className="text-sm text-muted-foreground">Receber alertas e atualizações</p>
+              <Label className="text-base font-medium text-foreground">Cookies de Análise</Label>
+              <p className="text-sm text-muted-foreground">Ajudam a entender como você usa a plataforma</p>
             </div>
             <Switch
-              id="notifications-push"
-              checked={notificationsPush}
-              onCheckedChange={setNotificationsPush}
+              checked={cookiesAnalytics}
+              onCheckedChange={setCookiesAnalytics}
+              className="data-[state=checked]:bg-[#FDB022]"
+            />
+          </div>
+
+          <div className="flex items-center justify-between py-3">
+            <div className="space-y-0.5">
+              <Label className="text-base font-medium text-foreground">Notificações por Email</Label>
+              <p className="text-sm text-muted-foreground">Receber atualizações e novidades por email</p>
+            </div>
+            <Switch
+              checked={emailNotifications}
+              onCheckedChange={setEmailNotifications}
+              className="data-[state=checked]:bg-[#FDB022]"
             />
           </div>
         </CardContent>
       </Card>
 
-      {/* Portabilidade */}
+      {/* Exportar Meus Dados */}
       <Card className="border-border bg-card">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <FileDown className="h-5 w-5 text-primary" />
-            <CardTitle className="text-foreground">Portabilidade de Dados</CardTitle>
-          </div>
+          <CardTitle className="text-foreground">Exportar Meus Dados</CardTitle>
           <CardDescription>
-            Solicite o envio de seus dados em formato legível (.json ou .csv)
+            Você pode solicitar a exportação dos seus dados pessoais a qualquer momento.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            <strong>Prazo para entrega:</strong> 7 dias úteis<br />
-            <strong>Canal de contato:</strong> suporte@beelio.com.br
-          </p>
-          <Button onClick={handleExportData} variant="outline">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <h4 className="font-semibold text-foreground mb-2">Dados disponíveis para exportação:</h4>
+            <ul className="space-y-1 text-sm text-blue-900">
+              <li>• Informações de perfil (nome, email, empresa)</li>
+              <li>• Preferências de notificação</li>
+              <li>• Histórico de posts e campanhas</li>
+              <li>• Dados de uso da plataforma</li>
+              <li>• Configurações de integração</li>
+            </ul>
+          </div>
+          <div className="text-sm text-muted-foreground mb-4 space-y-1">
+            <p><strong>Prazo para entrega:</strong> 7 dias úteis</p>
+            <p><strong>Canal de contato:</strong> export@beelio.com</p>
+          </div>
+          <Button 
+            onClick={handleExportData}
+            className="w-full bg-blue-600 text-white hover:bg-blue-700"
+          >
             <Download className="h-4 w-4 mr-2" />
             Solicitar Exportação
           </Button>
@@ -345,26 +353,30 @@ function PrivacyTab() {
       </Card>
 
       {/* Exclusão de Conta */}
-      <Card className="border-border bg-card border-destructive/50">
+      <Card className="border-destructive/50 bg-card">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Trash2 className="h-5 w-5 text-destructive" />
             <CardTitle className="text-foreground">Exclusão de Conta</CardTitle>
           </div>
           <CardDescription>
-            Você pode excluir permanentemente sua conta e todos os dados associados
+            Você pode excluir permanentemente sua conta e todos os dados associados.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Após a exclusão, <strong>não será possível recuperar informações</strong>.<br />
-            <strong>Prazo para confirmação da exclusão:</strong> 30 dias
-          </p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <p className="text-sm font-semibold text-yellow-900 mb-1">
+              ⚠️ Atenção: Após a exclusão, não será possível recuperar informações.
+            </p>
+            <p className="text-sm text-yellow-800">
+              Prazo para confirmação: 30 dias
+            </p>
+          </div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive">
+              <Button variant="destructive" className="w-full">
                 <Trash2 className="h-4 w-4 mr-2" />
-                Excluir Minha Conta
+                Solicitar Exclusão
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -377,7 +389,7 @@ function PrivacyTab() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground">
+                <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                   Sim, excluir minha conta
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -394,7 +406,7 @@ function PrivacyTab() {
             <CardTitle className="text-foreground">Histórico de Solicitações</CardTitle>
           </div>
           <CardDescription>
-            Últimas alterações solicitadas pelo usuário
+            Últimas alterações solicitadas por você:
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -403,12 +415,15 @@ function PrivacyTab() {
           ) : (
             <div className="space-y-3">
               {requestHistory.map((request, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-foreground">{request.type}</p>
-                    <p className="text-xs text-muted-foreground">Data: {request.date}</p>
+                <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <request.icon className="h-4 w-4 text-muted-foreground" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-foreground">{request.type}</p>
+                      <p className="text-xs text-muted-foreground">{request.date}</p>
+                    </div>
                   </div>
-                  <span className="text-sm px-3 py-1 bg-green-100 text-green-700 rounded-full">
+                  <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full font-medium">
                     {request.status}
                   </span>
                 </div>
@@ -426,7 +441,7 @@ function ContaTab() {
     <div className="space-y-6">
       <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg">Informações da Conta</CardTitle>
+          <CardTitle className="text-lg text-foreground">Informações da Conta</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -449,13 +464,13 @@ function ContaTab() {
               <Input id="phone" defaultValue="+55 11 99999-9999" />
             </div>
           </div>
-          <Button className="bg-primary text-primary-foreground">Salvar Alterações</Button>
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Salvar Alterações</Button>
         </CardContent>
       </Card>
 
       <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle className="text-lg">Alterar Senha</CardTitle>
+          <CardTitle className="text-lg text-foreground">Alterar Senha</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -470,7 +485,236 @@ function ContaTab() {
             <Label htmlFor="confirm-password">Confirmar Nova Senha</Label>
             <Input id="confirm-password" type="password" />
           </div>
-          <Button className="bg-primary text-primary-foreground">Alterar Senha</Button>
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Alterar Senha</Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function AssinaturaTab() {
+  const plans = [
+    {
+      name: "Free",
+      price: 0,
+      features: [
+        "Calendário editorial simples",
+        "Briefing da marca",
+        "Branding da marca",
+        "Chat IA - 3 créditos semanais",
+        "Sugestões rápidas de conteúdo"
+      ]
+    },
+    {
+      name: "Starter",
+      price: 87,
+      current: true,
+      nextBilling: "15/01/2025",
+      features: [
+        "TUDO DO PLANO FREE",
+        "Calendário de tendências",
+        "Biblioteca centralizada",
+        "Criar e programar post - internamente no beelio",
+        "Até 30 post por mês",
+        "Chat IA - 5 créditos por dia"
+      ]
+    },
+    {
+      name: "Pro",
+      price: 197,
+      features: [
+        "TUDO DO PLANO STARTER",
+        "Criar e programar post - ilimitado e nas redes sociais",
+        "Colaboração em equipe",
+        "Integração com as redes sociais"
+      ]
+    }
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Current Plan Alert */}
+      <Card className="border-[#FDB022] bg-[#FFF9E6]">
+        <CardContent className="pt-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="font-semibold text-foreground mb-1">Plano Starter</h3>
+              <p className="text-sm text-muted-foreground">
+                R$ 87/mês • Próxima cobrança: 15/01/2025
+              </p>
+            </div>
+            <Button variant="ghost" className="text-[#FDB022] hover:text-[#FDB022] hover:bg-[#FDB022]/10">
+              Cancelar Assinatura
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Plans Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {plans.map((plan) => (
+          <Card 
+            key={plan.name}
+            className={cn(
+              "border-2 transition-all",
+              plan.current 
+                ? "border-[#FDB022] bg-[#FFF9E6]" 
+                : "border-border bg-card"
+            )}
+          >
+            <CardHeader>
+              <CardTitle className="text-xl text-foreground">{plan.name}</CardTitle>
+              <div className="mt-2">
+                <span className="text-3xl font-bold text-foreground">R$ {plan.price}</span>
+                <span className="text-muted-foreground">/mês</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ul className="space-y-2">
+                {plan.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <span className="text-foreground">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <Button 
+                className={cn(
+                  "w-full",
+                  plan.current 
+                    ? "bg-[#FDB022] text-white hover:bg-[#FDB022]/90" 
+                    : "bg-muted text-foreground hover:bg-muted/80"
+                )}
+                disabled={plan.current}
+              >
+                {plan.current ? "Plano Atual" : "Selecionar"}
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function IntegracoesTab() {
+  const integrations = [
+    { name: "Facebook", icon: "📘", color: "#1877F2" },
+    { name: "YouTube", icon: "📺", color: "#FF0000" },
+    { name: "TikTok", icon: "🎵", color: "#000000" },
+    { name: "LinkedIn", icon: "💼", color: "#0A66C2" },
+    { name: "Instagram", icon: "📷", color: "#E4405F" }
+  ];
+
+  return (
+    <div className="space-y-6">
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="text-foreground">Redes Sociais</CardTitle>
+          <CardDescription>Conecte suas contas para publicar diretamente do Beelio</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {integrations.map((integration) => (
+            <div 
+              key={integration.name}
+              className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{integration.icon}</span>
+                <span className="font-medium text-foreground">{integration.name}</span>
+              </div>
+              <Button className="bg-[#FDB022] text-white hover:bg-[#FDB022]/90">
+                Conectar
+              </Button>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function NotificacoesTab() {
+  const [emailNotif, setEmailNotif] = useState(true);
+  const [pushNotif, setPushNotif] = useState(false);
+  const [weeklyReport, setWeeklyReport] = useState(true);
+  const [campaignAlerts, setCampaignAlerts] = useState(true);
+
+  return (
+    <div className="space-y-6">
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="text-foreground">Preferências de Notificação</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base font-medium text-foreground">Notificações por Email</Label>
+              <p className="text-sm text-muted-foreground">Receba atualizações importantes por email</p>
+            </div>
+            <Switch
+              checked={emailNotif}
+              onCheckedChange={setEmailNotif}
+              className="data-[state=checked]:bg-[#FDB022]"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base font-medium text-foreground">Notificações Push</Label>
+              <p className="text-sm text-muted-foreground">Receba notificações no navegador</p>
+            </div>
+            <Switch
+              checked={pushNotif}
+              onCheckedChange={setPushNotif}
+              className="data-[state=checked]:bg-[#FDB022]"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base font-medium text-foreground">Relatório Semanal</Label>
+              <p className="text-sm text-muted-foreground">Resumo semanal do desempenho</p>
+            </div>
+            <Switch
+              checked={weeklyReport}
+              onCheckedChange={setWeeklyReport}
+              className="data-[state=checked]:bg-[#FDB022]"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base font-medium text-foreground">Alertas de Campanha</Label>
+              <p className="text-sm text-muted-foreground">Notificações sobre campanhas ativas</p>
+            </div>
+            <Switch
+              checked={campaignAlerts}
+              onCheckedChange={setCampaignAlerts}
+              className="data-[state=checked]:bg-[#FDB022]"
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function EquipeTab() {
+  return (
+    <div className="space-y-6">
+      <Card className="border-border bg-card">
+        <CardContent className="pt-6 text-center py-12">
+          <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Integração de equipe disponível apenas no Plano Pro
+          </h3>
+          <p className="text-sm text-muted-foreground mb-6">
+            Para acessar recursos de equipe, faça upgrade para o plano Pro.
+          </p>
+          <Button className="bg-[#FDB022] text-white hover:bg-[#FDB022]/90">
+            Fazer Upgrade
+          </Button>
         </CardContent>
       </Card>
     </div>
@@ -521,50 +765,10 @@ export default function Settings() {
         {/* Main Content */}
         <div className="flex-1">
           {activeSection === "conta" && <ContaTab />}
-          {activeSection === "assinatura" && (
-            <Card className="border-border bg-card">
-              <CardHeader>
-                <CardTitle>Assinatura</CardTitle>
-                <CardDescription>Gerencie seu plano e faturamento</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Conteúdo em desenvolvimento...</p>
-              </CardContent>
-            </Card>
-          )}
-          {activeSection === "integracoes" && (
-            <Card className="border-border bg-card">
-              <CardHeader>
-                <CardTitle>Integrações</CardTitle>
-                <CardDescription>Conecte suas redes sociais e ferramentas</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Conteúdo em desenvolvimento...</p>
-              </CardContent>
-            </Card>
-          )}
-          {activeSection === "notificacoes" && (
-            <Card className="border-border bg-card">
-              <CardHeader>
-                <CardTitle>Notificações</CardTitle>
-                <CardDescription>Configure suas preferências de notificação</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Conteúdo em desenvolvimento...</p>
-              </CardContent>
-            </Card>
-          )}
-          {activeSection === "equipe" && (
-            <Card className="border-border bg-card">
-              <CardHeader>
-                <CardTitle>Equipe</CardTitle>
-                <CardDescription>Gerencie membros e permissões</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Conteúdo em desenvolvimento...</p>
-              </CardContent>
-            </Card>
-          )}
+          {activeSection === "assinatura" && <AssinaturaTab />}
+          {activeSection === "integracoes" && <IntegracoesTab />}
+          {activeSection === "notificacoes" && <NotificacoesTab />}
+          {activeSection === "equipe" && <EquipeTab />}
           {activeSection === "politicas" && <PoliciesTab />}
           {activeSection === "privacidade" && <PrivacyTab />}
         </div>
