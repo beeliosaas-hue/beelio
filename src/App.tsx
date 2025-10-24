@@ -5,7 +5,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CookieConsentBanner } from "@/components/ui/cookie-consent-banner";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import Calendar from "./pages/Calendar";
 import Briefing from "./pages/Briefing";
 import Branding from "./pages/Branding";
@@ -29,19 +31,20 @@ const App = () => (
       <CookieConsentBanner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-        <Route path="/calendario" element={<Calendar />} />
-        <Route path="/calendar" element={<Calendar />} />
-          <Route path="/briefing" element={<Briefing />} />
-          <Route path="/branding" element={<Branding />} />
-          <Route path="/tendencias" element={<Trends />} />
-          <Route path="/planner" element={<Planner />} />
-          <Route path="/biblioteca" element={<Library />} />
-          <Route path="/diana" element={<Diana />} />
-          <Route path="/aprovacao/:postId" element={<PostApproval />} />
-          <Route path="/relatorios" element={<Reports />} />
-          <Route path="/suporte" element={<Support />} />
-          <Route path="/configuracoes" element={<Settings />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+        <Route path="/calendario" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+        <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+          <Route path="/briefing" element={<ProtectedRoute><Briefing /></ProtectedRoute>} />
+          <Route path="/branding" element={<ProtectedRoute><Branding /></ProtectedRoute>} />
+          <Route path="/tendencias" element={<ProtectedRoute><Trends /></ProtectedRoute>} />
+          <Route path="/planner" element={<ProtectedRoute><Planner /></ProtectedRoute>} />
+          <Route path="/biblioteca" element={<ProtectedRoute><Library /></ProtectedRoute>} />
+          <Route path="/diana" element={<ProtectedRoute><Diana /></ProtectedRoute>} />
+          <Route path="/aprovacao/:postId" element={<ProtectedRoute><PostApproval /></ProtectedRoute>} />
+          <Route path="/relatorios" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+          <Route path="/suporte" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+          <Route path="/configuracoes" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

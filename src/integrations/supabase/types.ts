@@ -881,12 +881,26 @@ export type Database = {
       }
     }
     Functions: {
+      get_user_plan_info: {
+        Args: { target_user_id: string }
+        Returns: {
+          email: string
+          has_unlimited_credits: boolean
+          is_pro: boolean
+          plan_type: string
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      upgrade_user_to_pro: {
+        Args: { target_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
