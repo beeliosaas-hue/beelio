@@ -3,6 +3,8 @@ import {X, Send, Sparkles, ArrowRight, Calendar, TrendingUp, BarChart3, Palette,
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from 'sonner'
+import { useCredits } from '@/hooks/useCredits'
+import { Badge } from '@/components/ui/badge'
 
 interface Message {
   id: number
@@ -61,6 +63,7 @@ const Diana: React.FC = () => {
   const [isStreaming, setIsStreaming] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { credits, useCredit, refreshCredits, getResetTimeString } = useCredits()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -97,6 +100,10 @@ const Diana: React.FC = () => {
   const handleSendMessage = async (customMessage?: string, action?: string) => {
     const messageText = customMessage || inputValue
     if (!messageText.trim()) return
+
+    // Verificar créditos antes de enviar
+    const hasCredits = await useCredit()
+    if (!hasCredits) return
 
     const newMessage: Message = {
       id: messages.length + 1,
@@ -236,8 +243,11 @@ const Diana: React.FC = () => {
           user_id: user.id,
           mensagem: messageText,
           resposta: assistantMessage,
-          tipo_interacao: action || 'chat'
+          tipo_interacao: action || 'chat',
+          creditos_usados: 1
         })
+        // Atualizar créditos
+        await refreshCredits()
       }
 
     } catch (error: any) {
@@ -385,6 +395,16 @@ const Diana: React.FC = () => {
             <p className="text-sm text-muted-foreground">
               Diana está online • Anexe documentos, imagens e arquivos
             </p>
+            <div className="flex items-center gap-2">
+              <Badge variant={credits.isUnlimited ? "default" : credits.available > 0 ? "secondary" : "destructive"} className="text-xs">
+                {credits.isUnlimited ? '∞ Ilimitado' : `${credits.available}/${credits.total} créditos`}
+              </Badge>
+              {!credits.isUnlimited && (
+                <span className="text-xs text-muted-foreground">
+                  {getResetTimeString()}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
