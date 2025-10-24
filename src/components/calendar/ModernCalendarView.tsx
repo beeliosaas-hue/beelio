@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Filter, Instagram, Facebook, Linkedin, Youtube, Music, Calendar as CalendarIcon, MoreHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, Instagram, Facebook, Linkedin, Youtube, Music, MoreHorizontal } from "lucide-react";
+import { WeekView } from "./WeekView";
+import { DayView } from "./DayView";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -141,69 +143,17 @@ export function ModernCalendarView({ onCreatePost }: ModernCalendarViewProps) {
     });
   };
 
-  return (
-    <div className="space-y-4">
-      {/* Filter controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigateMonth("prev")}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <h3 className="text-lg font-semibold min-w-[200px] text-center">
-            {currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-          </h3>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigateMonth("next")}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Todos os Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os Status</SelectItem>
-              <SelectItem value="published">Publicado</SelectItem>
-              <SelectItem value="scheduled">Agendado</SelectItem>
-              <SelectItem value="draft">Rascunho</SelectItem>
-              <SelectItem value="pending">Aguardando Aprovação</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={channelFilter} onValueChange={setChannelFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Todos os Canais" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os Canais</SelectItem>
-              <SelectItem value="instagram">Instagram</SelectItem>
-              <SelectItem value="linkedin">LinkedIn</SelectItem>
-              <SelectItem value="facebook">Facebook</SelectItem>
-              <SelectItem value="youtube">YouTube</SelectItem>
-              <SelectItem value="tiktok">TikTok</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "month" | "week" | "day")}>
-            <TabsList>
-              <TabsTrigger value="month">Mensal</TabsTrigger>
-              <TabsTrigger value="week">Semanal</TabsTrigger>
-              <TabsTrigger value="day">Diário</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      </div>
+  const renderCalendarContent = () => {
+    if (viewMode === "week") {
+      return <WeekView currentDate={currentDate} events={mockEvents} />;
+    }
+    
+    if (viewMode === "day") {
+      return <DayView currentDate={currentDate} events={mockEvents} />;
+    }
 
-      {/* Calendar */}
+    // Monthly view
+    return (
       <Card className="w-full">
         <CardContent className="p-0">
           {/* Calendar grid */}
@@ -222,8 +172,8 @@ export function ModernCalendarView({ onCreatePost }: ModernCalendarViewProps) {
             {calendarDays.map((day, index) => {
               const isCurrentMonth = day !== null;
               const dayEvents = isCurrentMonth ? getEventsForDay(day) : [];
-              const isHighlighted = day === 7; // Highlighting day 7 for Independence Day
-              const isSelected = day === 14; // Yellow highlight for day 14
+              const isHighlighted = day === 7;
+              const isSelected = day === 14;
               
               return (
                 <div
@@ -360,6 +310,73 @@ export function ModernCalendarView({ onCreatePost }: ModernCalendarViewProps) {
           </div>
         </CardContent>
       </Card>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Filter controls */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateMonth("prev")}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <h3 className="text-lg font-semibold min-w-[200px] text-center">
+            {currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+          </h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigateMonth("next")}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Todos os Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Status</SelectItem>
+              <SelectItem value="published">Publicado</SelectItem>
+              <SelectItem value="scheduled">Agendado</SelectItem>
+              <SelectItem value="draft">Rascunho</SelectItem>
+              <SelectItem value="pending">Aguardando Aprovação</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Select value={channelFilter} onValueChange={setChannelFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Todos os Canais" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os Canais</SelectItem>
+              <SelectItem value="instagram">Instagram</SelectItem>
+              <SelectItem value="linkedin">LinkedIn</SelectItem>
+              <SelectItem value="facebook">Facebook</SelectItem>
+              <SelectItem value="youtube">YouTube</SelectItem>
+              <SelectItem value="tiktok">TikTok</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "month" | "week" | "day")}>
+            <TabsList>
+              <TabsTrigger value="month">Mensal</TabsTrigger>
+              <TabsTrigger value="week">Semanal</TabsTrigger>
+              <TabsTrigger value="day">Diário</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </div>
+
+      {/* Calendar */}
+      {renderCalendarContent()}
     </div>
   );
 }

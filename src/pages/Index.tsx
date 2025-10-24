@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatsCards } from "@/components/dashboard/StatsCards";
-import { DashboardWidgets } from "@/components/dashboard/DashboardWidgets";
 import { PostsCalendar } from "@/components/dashboard/PostsCalendar";
 import { ProximosPosts } from "@/components/dashboard/ProximosPosts";
 import { EstatisticasRapidas } from "@/components/dashboard/EstatisticasRapidas";
@@ -93,9 +92,6 @@ const Index = () => {
         
         {/* Stats Cards */}
         <StatsCards />
-        
-        {/* Quick Access Widgets */}
-        <DashboardWidgets />
         
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
