@@ -8,6 +8,7 @@ import { Check, X, Edit3, Facebook, Instagram, Linkedin, Youtube } from "lucide-
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import beelioLogo from "@/assets/beelio-logo.png";
 
 interface Post {
   id: string;
@@ -282,7 +283,7 @@ export default function PostApproval() {
         <div className="container mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <img 
-              src="/src/assets/beelio-logo.png" 
+              src={beelioLogo} 
               alt="Beelio" 
               className="h-7 sm:h-8"
             />

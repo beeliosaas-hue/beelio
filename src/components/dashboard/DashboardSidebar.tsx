@@ -155,20 +155,6 @@ export function DashboardSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Diana Quick Access */}
-        {!isCollapsed && (
-          <SidebarGroup className="mt-auto mb-4">
-            <div className="px-4 py-3 bg-accent/30 rounded-lg mx-4 border border-primary/20">
-              <div className="flex items-center space-x-2 mb-2">
-                <MessageCircle className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">Diana IA</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Sua assistente de marketing sempre disponível
-              </p>
-            </div>
-          </SidebarGroup>
-        )}
       </SidebarContent>
     </Sidebar>
   );
