@@ -52,26 +52,32 @@ export function StatsCards() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {statsData.map((stat, index) => (
-        <Card key={index} className="border border-gray-200 bg-white">
+        <Card 
+          key={index} 
+          className="card-interactive border border-border bg-card animate-fade-in"
+          style={{ animationDelay: `${index * 0.1}s` }}
+        >
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+              <div className={`p-2 rounded-lg ${stat.bgColor} transition-transform duration-300 group-hover:scale-110`}>
                 <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
               {stat.trend && (
-                <span className="text-xs text-green-600 font-medium">{stat.trend}</span>
+                <Badge variant="outline" className="text-xs bg-success/10 text-success border-success/20">
+                  {stat.trend}
+                </Badge>
               )}
             </div>
             
             <div className="mb-2">
-              <h3 className="text-sm font-medium text-gray-600 mb-1">{stat.title}</h3>
-              <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
-              <p className="text-xs text-gray-500">{stat.subtitle}</p>
+              <h3 className="text-sm font-medium text-muted-foreground mb-1">{stat.title}</h3>
+              <div className="text-2xl font-bold text-foreground mb-1">{stat.value}</div>
+              <p className="text-xs text-muted-foreground">{stat.subtitle}</p>
             </div>
             
             {stat.progress !== null && (
               <div className="space-y-1">
-                <div className="flex justify-between text-xs text-gray-500">
+                <div className="flex justify-between text-xs text-muted-foreground">
                   <span>{stat.progressText}</span>
                   <span>{stat.progress}%</span>
                 </div>

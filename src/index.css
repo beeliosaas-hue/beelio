@@ -56,7 +56,9 @@
     --subtle-gradient: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 17% 98%));
     --shadow-soft: 0 4px 20px -2px hsl(45 100% 60% / 0.1);
     --shadow-elevation: 0 8px 30px -8px hsl(220 13% 18% / 0.12);
+    --shadow-hover: 0 12px 40px -10px hsl(220 13% 18% / 0.2);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     
     /* Bee Color System */
     --bee-yellow: 45 100% 65%;
@@ -149,4 +151,185 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Microanimações e Interações */
+@layer utilities {
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px -10px hsl(220 13% 18% / 0.2);
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200 ease-out;
+  }
+  
+  .hover-scale:hover {
+    @apply scale-105;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .hover-glow:hover {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+  }
+
+  /* Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.4s ease-out forwards;
+  }
+
+  .animate-bounce-subtle {
+    animation: bounceSubtle 0.6s ease-out forwards;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  /* Smooth Transitions */
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+
+  .transition-spring {
+    transition: var(--transition-spring);
+  }
+
+  /* Card Animations */
+  .card-interactive {
+    @apply hover-lift cursor-pointer transition-smooth;
+  }
+
+  .card-interactive:hover {
+    @apply shadow-elevation border-primary/20;
+  }
+
+  /* Button Animations */
+  .btn-scale {
+    @apply transition-transform duration-150 active:scale-95;
+  }
+
+  /* Loading States */
+  .skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+
+  /* Tooltips */
+  .tooltip {
+    @apply invisible absolute z-50 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg;
+    @apply transition-all duration-200 opacity-0 translate-y-2;
+  }
+
+  .tooltip-visible {
+    @apply visible opacity-100 translate-y-0;
+  }
+
+  /* Drag & Drop */
+  .draggable {
+    @apply cursor-move transition-all duration-200;
+  }
+
+  .draggable:hover {
+    @apply scale-105 shadow-soft;
+  }
+
+  .dragging {
+    @apply opacity-50 scale-95;
+  }
+
+  .drop-zone {
+    @apply border-2 border-dashed border-muted transition-all duration-200;
+  }
+
+  .drop-zone-active {
+    @apply border-primary bg-primary/5;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceSubtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px hsl(var(--primary) / 0.2);
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.5);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.7);
 }
