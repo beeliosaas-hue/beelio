@@ -323,6 +323,39 @@ export type Database = {
         }
         Relationships: []
       }
+      diana_contextos: {
+        Row: {
+          contexto_atual: Json | null
+          created_at: string | null
+          historico_conversas: Json | null
+          id: string
+          tokens_usados: number | null
+          ultima_interacao: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          contexto_atual?: Json | null
+          created_at?: string | null
+          historico_conversas?: Json | null
+          id?: string
+          tokens_usados?: number | null
+          ultima_interacao?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          contexto_atual?: Json | null
+          created_at?: string | null
+          historico_conversas?: Json | null
+          id?: string
+          tokens_usados?: number | null
+          ultima_interacao?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       diana_conversations: {
         Row: {
           conversa_id: string
@@ -356,6 +389,202 @@ export type Database = {
           resposta?: string | null
           tipo_interacao?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      diana_feedback: {
+        Row: {
+          avaliacao: Database["public"]["Enums"]["avaliacao_tipo"] | null
+          conversa_id: string | null
+          created_at: string | null
+          data_feedback: string | null
+          id: string
+          mensagem: string
+          resposta_diana: string | null
+          user_id: string
+        }
+        Insert: {
+          avaliacao?: Database["public"]["Enums"]["avaliacao_tipo"] | null
+          conversa_id?: string | null
+          created_at?: string | null
+          data_feedback?: string | null
+          id?: string
+          mensagem: string
+          resposta_diana?: string | null
+          user_id: string
+        }
+        Update: {
+          avaliacao?: Database["public"]["Enums"]["avaliacao_tipo"] | null
+          conversa_id?: string | null
+          created_at?: string | null
+          data_feedback?: string | null
+          id?: string
+          mensagem?: string
+          resposta_diana?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diana_feedback_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "diana_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipes: {
+        Row: {
+          created_at: string | null
+          data_criacao: string | null
+          descricao: string | null
+          id: string
+          nome_equipe: string
+          updated_at: string | null
+          usuario_principal_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data_criacao?: string | null
+          descricao?: string | null
+          id?: string
+          nome_equipe: string
+          updated_at?: string | null
+          usuario_principal_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data_criacao?: string | null
+          descricao?: string | null
+          id?: string
+          nome_equipe?: string
+          updated_at?: string | null
+          usuario_principal_id?: string
+        }
+        Relationships: []
+      }
+      feriados_nacionais: {
+        Row: {
+          ano: number
+          created_at: string | null
+          data: string
+          descricao: string | null
+          id: string
+          nome: string
+          regiao: string | null
+          tipo: string | null
+        }
+        Insert: {
+          ano: number
+          created_at?: string | null
+          data: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          regiao?: string | null
+          tipo?: string | null
+        }
+        Update: {
+          ano?: number
+          created_at?: string | null
+          data?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          regiao?: string | null
+          tipo?: string | null
+        }
+        Relationships: []
+      }
+      membros_equipes: {
+        Row: {
+          ativo: boolean | null
+          convite_aceito: boolean | null
+          created_at: string | null
+          data_aceitacao: string | null
+          data_convite: string | null
+          email_membro: string
+          equipe_id: string
+          funcao: Database["public"]["Enums"]["funcao_membro"] | null
+          id: string
+          nome_membro: string
+          user_id: string | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          convite_aceito?: boolean | null
+          created_at?: string | null
+          data_aceitacao?: string | null
+          data_convite?: string | null
+          email_membro: string
+          equipe_id: string
+          funcao?: Database["public"]["Enums"]["funcao_membro"] | null
+          id?: string
+          nome_membro: string
+          user_id?: string | null
+        }
+        Update: {
+          ativo?: boolean | null
+          convite_aceito?: boolean | null
+          created_at?: string | null
+          data_aceitacao?: string | null
+          data_convite?: string | null
+          email_membro?: string
+          equipe_id?: string
+          funcao?: Database["public"]["Enums"]["funcao_membro"] | null
+          id?: string
+          nome_membro?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membros_equipes_equipe_id_fkey"
+            columns: ["equipe_id"]
+            isOneToOne: false
+            referencedRelation: "equipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      onboarding: {
+        Row: {
+          completado: boolean | null
+          data_preenchimento: string | null
+          expectativas: string | null
+          id: string
+          identidade_visual: Json | null
+          nome_marca: string | null
+          objetivos: string | null
+          publico_alvo: string | null
+          segmento: string | null
+          user_id: string
+          voz_da_marca: string | null
+        }
+        Insert: {
+          completado?: boolean | null
+          data_preenchimento?: string | null
+          expectativas?: string | null
+          id?: string
+          identidade_visual?: Json | null
+          nome_marca?: string | null
+          objetivos?: string | null
+          publico_alvo?: string | null
+          segmento?: string | null
+          user_id: string
+          voz_da_marca?: string | null
+        }
+        Update: {
+          completado?: boolean | null
+          data_preenchimento?: string | null
+          expectativas?: string | null
+          id?: string
+          identidade_visual?: Json | null
+          nome_marca?: string | null
+          objetivos?: string | null
+          publico_alvo?: string | null
+          segmento?: string | null
+          user_id?: string
+          voz_da_marca?: string | null
         }
         Relationships: []
       }
@@ -557,15 +786,114 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      view_posts_usuario: {
+        Row: {
+          conteudo: string | null
+          created_at: string | null
+          data_agendamento: string | null
+          id: string | null
+          nome_usuario: string | null
+          redes_sociais: string[] | null
+          status: string | null
+          tipo: string | null
+          titulo: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      view_relatorios_completos: {
+        Row: {
+          created_at: string | null
+          dados: Json | null
+          email_usuario: string | null
+          formato: string | null
+          id: string | null
+          nome_usuario: string | null
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          tipo_relatorio: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      view_tendencias_ativas: {
+        Row: {
+          categoria: string | null
+          created_at: string | null
+          data_evento: string | null
+          descricao: string | null
+          fonte: string | null
+          id: string | null
+          relevancia: number | null
+          segmento: string[] | null
+          tipo: string | null
+          titulo: string | null
+        }
+        Insert: {
+          categoria?: string | null
+          created_at?: string | null
+          data_evento?: string | null
+          descricao?: string | null
+          fonte?: string | null
+          id?: string | null
+          relevancia?: number | null
+          segmento?: string[] | null
+          tipo?: string | null
+          titulo?: string | null
+        }
+        Update: {
+          categoria?: string | null
+          created_at?: string | null
+          data_evento?: string | null
+          descricao?: string | null
+          fonte?: string | null
+          id?: string | null
+          relevancia?: number | null
+          segmento?: string[] | null
+          tipo?: string | null
+          titulo?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      avaliacao_tipo: "positiva" | "neutra" | "negativa"
+      funcao_membro: "administrador" | "editor" | "visualizador"
+      plano_tipo: "free" | "starter" | "pro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -692,6 +1020,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      avaliacao_tipo: ["positiva", "neutra", "negativa"],
+      funcao_membro: ["administrador", "editor", "visualizador"],
+      plano_tipo: ["free", "starter", "pro"],
+    },
   },
 } as const
