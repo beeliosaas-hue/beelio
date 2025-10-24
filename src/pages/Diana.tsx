@@ -151,13 +151,34 @@ const Diana: React.FC = () => {
         branding = brandingData
       }
 
-      const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/diana-chat`
+      // Chamar edge function via Supabase client
+      const { data: responseData, error: functionError } = await supabase.functions.invoke('diana-chat', {
+        body: {
+          messages: messages
+            .filter(m => !m.isTyping)
+            .map(m => ({
+              role: m.type === 'user' ? 'user' : 'assistant',
+              content: m.message
+            }))
+            .concat([{ role: 'user', content: messageText }]),
+          action,
+          briefing,
+          branding
+        }
+      });
+
+      if (functionError) {
+        throw new Error(functionError.message);
+      }
+
+      // Para streaming, precisamos fazer fetch direto
+      const CHAT_URL = `https://ygmharbfawtkwwcflzui.supabase.co/functions/v1/diana-chat`;
       
       const response = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnbWhhcmJmYXd0a3d3Y2ZsenVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4ODk1NTEsImV4cCI6MjA3MzQ2NTU1MX0.eToCW6OIe2_ABl9cdtnn9syvhs7-QsRQ2RqRV2E78jU`,
         },
         body: JSON.stringify({
           messages: messages

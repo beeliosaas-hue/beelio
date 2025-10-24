@@ -1,46 +1,60 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Download } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { BriefingCard } from "@/components/briefing/BriefingCard";
 import { BriefingForm } from "@/components/briefing/BriefingForm";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Briefing {
   id: string;
-  brandName: string;
-  createdAt: Date;
-  status: 'completed' | 'in-progress';
-  progress: number;
+  nome_marca: string;
+  created_at: string;
+  status: 'completed' | 'em_andamento';
+  progresso: number;
 }
 
 const Briefing = () => {
-  const [briefings, setBriefings] = useState<Briefing[]>([
-    {
-      id: '1',
-      brandName: 'Café Aroma',
-      createdAt: new Date('2024-01-14'),
-      status: 'completed',
-      progress: 100
-    },
-    {
-      id: '2',
-      brandName: 'Tech Solutions',
-      createdAt: new Date('2024-01-19'),
-      status: 'in-progress',
-      progress: 65
-    },
-    {
-      id: '3',
-      brandName: 'Boutique Luna',
-      createdAt: new Date('2024-01-21'),
-      status: 'in-progress',
-      progress: 30
-    }
-  ]);
-
+  const [briefings, setBriefings] = useState<Briefing[]>([]);
   const [currentView, setCurrentView] = useState<'list' | 'form'>('list');
   const [editingBriefing, setEditingBriefing] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadBriefings();
+  }, []);
+
+  const loadBriefings = async () => {
+    try {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('briefings')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      const mappedBriefings = (data || []).map((b: any) => ({
+        id: b.id,
+        nome_marca: b.nome_marca,
+        created_at: b.created_at,
+        status: (b.status === 'completed' ? 'completed' : 'em_andamento') as 'completed' | 'em_andamento',
+        progresso: b.progresso || 0
+      }));
+      
+      setBriefings(mappedBriefings);
+    } catch (error: any) {
+      console.error('Erro ao carregar briefings:', error);
+      toast.error('Erro ao carregar briefings');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleNewBriefing = () => {
     setEditingBriefing(null);
@@ -54,43 +68,111 @@ const Briefing = () => {
 
   const handleViewBriefing = (id: string) => {
     const briefing = briefings.find(b => b.id === id);
-    toast.success(`Visualizando briefing: ${briefing?.brandName}`);
+    toast.success(`Visualizando briefing: ${briefing?.nome_marca}`);
   };
 
-  const handleDeleteBriefing = (id: string) => {
-    const briefing = briefings.find(b => b.id === id);
-    setBriefings(prev => prev.filter(b => b.id !== id));
-    toast.success(`Briefing "${briefing?.brandName}" excluído com sucesso`);
+  const handleDeleteBriefing = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('briefings')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Briefing excluído com sucesso');
+      loadBriefings();
+    } catch (error: any) {
+      console.error('Erro ao excluir briefing:', error);
+      toast.error('Erro ao excluir briefing');
+    }
   };
 
   const handleDownloadBriefing = (id: string) => {
     const briefing = briefings.find(b => b.id === id);
-    toast.success(`Download iniciado: ${briefing?.brandName}.pdf`);
+    toast.success(`Download iniciado: ${briefing?.nome_marca}.pdf`);
   };
 
-  const handleSaveBriefing = (data: any) => {
-    if (editingBriefing) {
-      // Update existing briefing
-      setBriefings(prev => prev.map(b => 
-        b.id === editingBriefing 
-          ? { ...b, brandName: data.brandName, progress: calculateProgress(data) }
-          : b
-      ));
-      toast.success("Briefing atualizado com sucesso!");
-    } else {
-      // Create new briefing
-      const newBriefing: Briefing = {
-        id: Date.now().toString(),
-        brandName: data.brandName || 'Novo Briefing',
-        createdAt: new Date(),
-        status: calculateProgress(data) === 100 ? 'completed' : 'in-progress',
-        progress: calculateProgress(data)
+  const handleSaveBriefing = async (data: any) => {
+    try {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Você precisa estar logado');
+        return;
+      }
+
+      const briefingData = {
+        user_id: user.id,
+        nome_marca: data.brandName || 'Novo Briefing',
+        site: data.website,
+        redes_sociais: data.socialMedia ? [data.socialMedia] : [],
+        segmento_atuacao: data.segment,
+        localizacao: data.location,
+        missao: data.mission,
+        visao: data.vision,
+        valores: data.values,
+        personalidade: data.personality ? [data.personality] : [],
+        tom_voz: data.toneOfVoice,
+        cliente_ideal: data.targetClient,
+        faixa_etaria: data.ageRange,
+        localizacao_publico: data.targetLocation,
+        nivel_socioeconomico: data.socioeconomic,
+        interesses: data.interests,
+        dores: data.painPoints,
+        busca_solucao: data.solutionSeeking,
+        diferenciais: data.differentials,
+        concorrentes_diretos: data.competitors ? { list: data.competitors } : null,
+        admira_concorrentes: data.admiredFeatures,
+        nao_repetir: data.avoidFeatures,
+        lista_produtos: data.products,
+        ticket_medio: data.averageTicket,
+        prioridade_atual: data.currentPriority,
+        objetivos_marketing: data.objectives || [],
+        meta_especifica: data.specificGoal,
+        cores_principais: data.brandColors || [],
+        logo_url: data.logoUrl,
+        materiais_existentes: data.existingMaterials ? [data.existingMaterials] : [],
+        referencias_visuais: data.visualReferences || [],
+        redes_utilizadas: data.currentSocialMedia ? [data.currentSocialMedia] : [],
+        canais_preferidos: data.preferredChannels ? [data.preferredChannels] : [],
+        tipo_conteudo: data.contentTypes || [],
+        marcas_admiradas: data.admiredBrands,
+        resumo_historia: data.brandHistory,
+        principais_conquistas: data.achievements,
+        desafios_atuais: data.currentChallenges,
+        oportunidades: data.opportunities,
+        informacoes_adicionais: data.additionalInfo,
+        nao_fazer: data.restrictions,
+        progresso: calculateProgress(data),
+        status: calculateProgress(data) === 100 ? 'completed' : 'em_andamento'
       };
-      setBriefings(prev => [...prev, newBriefing]);
-      toast.success("Briefing criado com sucesso!");
+
+      if (editingBriefing) {
+        const { error } = await supabase
+          .from('briefings')
+          .update(briefingData)
+          .eq('id', editingBriefing);
+
+        if (error) throw error;
+        toast.success("Briefing atualizado com sucesso!");
+      } else {
+        const { error } = await supabase
+          .from('briefings')
+          .insert([briefingData]);
+
+        if (error) throw error;
+        toast.success("Briefing criado com sucesso!");
+      }
+
+      setCurrentView('list');
+      setEditingBriefing(null);
+      loadBriefings();
+    } catch (error: any) {
+      console.error('Erro ao salvar briefing:', error);
+      toast.error('Erro ao salvar briefing');
+    } finally {
+      setLoading(false);
     }
-    setCurrentView('list');
-    setEditingBriefing(null);
   };
 
   const calculateProgress = (data: any) => {
@@ -122,7 +204,6 @@ const Briefing = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h1 className="text-3xl font-bold text-foreground">Briefings de Marca</h1>
@@ -150,7 +231,6 @@ const Briefing = () => {
           </div>
         </div>
 
-        {/* Briefings Grid */}
         {briefings.length === 0 ? (
           <div className="text-center py-12">
             <div className="mx-auto w-24 h-24 bg-accent rounded-full flex items-center justify-center mb-4">
@@ -175,7 +255,13 @@ const Briefing = () => {
             {briefings.map((briefing) => (
               <BriefingCard
                 key={briefing.id}
-                briefing={briefing}
+                briefing={{
+                  id: briefing.id,
+                  brandName: briefing.nome_marca,
+                  createdAt: new Date(briefing.created_at),
+                  status: briefing.status === 'completed' ? 'completed' : 'in-progress',
+                  progress: briefing.progresso
+                }}
                 onEdit={handleEditBriefing}
                 onView={handleViewBriefing}
                 onDelete={handleDeleteBriefing}
