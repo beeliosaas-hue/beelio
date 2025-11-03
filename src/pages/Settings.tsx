@@ -51,6 +51,7 @@ import {
 import { toast } from "sonner";
 import { TeamManagement } from '@/components/settings/TeamManagement';
 import { ApprovalsList } from '@/components/settings/ApprovalsList';
+import { PlanUpgrade } from '@/components/settings/PlanUpgrade';
 import { useProPlan } from '@/hooks/useProPlan';
 
 type MenuSection = "conta" | "assinatura" | "integracoes" | "notificacoes" | "equipe" | "aprovacoes" | "politicas" | "privacidade";
@@ -676,106 +677,21 @@ function ContaTab() {
 }
 
 function AssinaturaTab() {
-  const plans = [
-    {
-      name: "Free",
-      price: 0,
-      features: [
-        "Calendário editorial simples",
-        "Briefing da marca",
-        "Branding da marca",
-        "Chat IA - 3 créditos semanais",
-        "Sugestões rápidas de conteúdo"
-      ]
-    },
-    {
-      name: "Starter",
-      price: 87,
-      current: true,
-      nextBilling: "15/01/2025",
-      features: [
-        "TUDO DO PLANO FREE",
-        "Calendário de tendências",
-        "Biblioteca centralizada",
-        "Criar e programar post - internamente no beelio",
-        "Até 30 post por mês",
-        "Chat IA - 5 créditos por dia"
-      ]
-    },
-    {
-      name: "Pro",
-      price: 197,
-      features: [
-        "TUDO DO PLANO STARTER",
-        "Criar e programar post - ilimitado e nas redes sociais",
-        "Colaboração em equipe",
-        "Integração com as redes sociais"
-      ]
-    }
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Current Plan Alert */}
-      <Card className="border-[#FDB022] bg-[#FFF9E6]">
-        <CardContent className="pt-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="font-semibold text-foreground mb-1">Plano Starter</h3>
-              <p className="text-sm text-muted-foreground">
-                R$ 87/mês • Próxima cobrança: 15/01/2025
-              </p>
-            </div>
-            <Button variant="ghost" className="text-[#FDB022] hover:text-[#FDB022] hover:bg-[#FDB022]/10">
-              Cancelar Assinatura
-            </Button>
-          </div>
+      <PlanUpgrade />
+      
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle className="text-lg text-foreground">Histórico de Pagamentos</CardTitle>
+          <CardDescription>Suas faturas e transações</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Nenhuma transação realizada ainda.
+          </p>
         </CardContent>
       </Card>
-
-      {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {plans.map((plan) => (
-          <Card 
-            key={plan.name}
-            className={cn(
-              "border-2 transition-all",
-              plan.current 
-                ? "border-[#FDB022] bg-[#FFF9E6]" 
-                : "border-border bg-card"
-            )}
-          >
-            <CardHeader>
-              <CardTitle className="text-xl text-foreground">{plan.name}</CardTitle>
-              <div className="mt-2">
-                <span className="text-3xl font-bold text-foreground">R$ {plan.price}</span>
-                <span className="text-muted-foreground">/mês</span>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ul className="space-y-2">
-                {plan.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm">
-                    <span className="text-green-600 mt-0.5">✓</span>
-                    <span className="text-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button 
-                className={cn(
-                  "w-full",
-                  plan.current 
-                    ? "bg-[#FDB022] text-white hover:bg-[#FDB022]/90" 
-                    : "bg-muted text-foreground hover:bg-muted/80"
-                )}
-                disabled={plan.current}
-              >
-                {plan.current ? "Plano Atual" : "Selecionar"}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   );
 }
