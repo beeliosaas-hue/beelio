@@ -109,14 +109,14 @@ export function TeamManagement() {
 
     setAddingMember(true);
     try {
-      const { error } = await supabase
-        .from('membros_equipes')
-        .insert([{
+      const { data, error } = await supabase.functions.invoke('team-members', {
+        body: {
           equipe_id: team.id,
           nome_membro: newMember.nome,
           email_membro: newMember.email,
-          funcao: newMember.funcao as 'visualizador' | 'editor' | 'administrador'
-        }]);
+          funcao: newMember.funcao
+        }
+      });
 
       if (error) throw error;
 

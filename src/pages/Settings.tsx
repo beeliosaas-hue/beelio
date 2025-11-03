@@ -51,6 +51,7 @@ import {
 import { toast } from "sonner";
 import { TeamManagement } from '@/components/settings/TeamManagement';
 import { ApprovalsList } from '@/components/settings/ApprovalsList';
+import { useProPlan } from '@/hooks/useProPlan';
 
 type MenuSection = "conta" | "assinatura" | "integracoes" | "notificacoes" | "equipe" | "aprovacoes" | "politicas" | "privacidade";
 
@@ -887,28 +888,48 @@ function EquipeTab() {
 }
 
 function AprovacoesTab() {
-  return (
-    <div className="space-y-6">
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckSquare className="h-5 w-5" />
-            Gerenciar Aprovações
-          </CardTitle>
-          <CardDescription>
-            Revise e aprove conteúdos criados pela equipe
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ApprovalsList />
-        </CardContent>
-      </Card>
-    </div>
-  );
+  return <ApprovalsList />;
 }
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<MenuSection>("conta");
+  const { isPro, loading: loadingPro } = useProPlan();
+
+  const ProFeatureGate = ({ children }: { children: React.ReactNode }) => {
+    if (loadingPro) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      );
+    }
+
+    if (!isPro) {
+      return (
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="p-4 bg-primary/10 rounded-full">
+                  <Lock className="h-8 w-8 text-primary" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold">Recurso Exclusivo do Plano PRO</h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Este recurso está disponível apenas para usuários do plano PRO. 
+                Faça upgrade para desbloquear colaboração em equipe e sistema de aprovações.
+              </p>
+              <Button className="mt-4">
+                Fazer Upgrade para PRO
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return <>{children}</>;
+  };
 
   const menuItems = [
     { id: "conta" as MenuSection, label: "Conta", icon: User },
@@ -955,8 +976,16 @@ export default function Settings() {
           {activeSection === "assinatura" && <AssinaturaTab />}
           {activeSection === "integracoes" && <IntegracoesTab />}
           {activeSection === "notificacoes" && <NotificacoesTab />}
-          {activeSection === "equipe" && <EquipeTab />}
-          {activeSection === "aprovacoes" && <AprovacoesTab />}
+          {activeSection === "equipe" && (
+            <ProFeatureGate>
+              <EquipeTab />
+            </ProFeatureGate>
+          )}
+          {activeSection === "aprovacoes" && (
+            <ProFeatureGate>
+              <AprovacoesTab />
+            </ProFeatureGate>
+          )}
           {activeSection === "politicas" && <PoliciesTab />}
           {activeSection === "privacidade" && <PrivacyTab />}
         </div>

@@ -17,12 +17,18 @@ export type Database = {
       aprovacoes: {
         Row: {
           aprovado_por: string | null
+          assigned_to: string | null
           comentario: string | null
           created_at: string
           data: string
+          decided_at: string | null
+          decided_by: string | null
+          entity_id: string | null
+          entity_type: string | null
           equipe_id: string | null
           id: string
           item_id: string
+          requested_by: string | null
           status: string
           tipo_aprovacao: string
           updated_at: string
@@ -30,12 +36,18 @@ export type Database = {
         }
         Insert: {
           aprovado_por?: string | null
+          assigned_to?: string | null
           comentario?: string | null
           created_at?: string
           data?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
           equipe_id?: string | null
           id?: string
           item_id: string
+          requested_by?: string | null
           status?: string
           tipo_aprovacao: string
           updated_at?: string
@@ -43,12 +55,18 @@ export type Database = {
         }
         Update: {
           aprovado_por?: string | null
+          assigned_to?: string | null
           comentario?: string | null
           created_at?: string
           data?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
           equipe_id?: string | null
           id?: string
           item_id?: string
+          requested_by?: string | null
           status?: string
           tipo_aprovacao?: string
           updated_at?: string
@@ -485,6 +503,7 @@ export type Database = {
       }
       equipes: {
         Row: {
+          ativo: boolean | null
           created_at: string | null
           data_criacao: string | null
           descricao: string | null
@@ -494,6 +513,7 @@ export type Database = {
           usuario_principal_id: string
         }
         Insert: {
+          ativo?: boolean | null
           created_at?: string | null
           data_criacao?: string | null
           descricao?: string | null
@@ -503,6 +523,7 @@ export type Database = {
           usuario_principal_id: string
         }
         Update: {
+          ativo?: boolean | null
           created_at?: string | null
           data_criacao?: string | null
           descricao?: string | null
@@ -558,6 +579,7 @@ export type Database = {
           funcao: Database["public"]["Enums"]["funcao_membro"] | null
           id: string
           nome_membro: string
+          status: string | null
           user_id: string | null
         }
         Insert: {
@@ -571,6 +593,7 @@ export type Database = {
           funcao?: Database["public"]["Enums"]["funcao_membro"] | null
           id?: string
           nome_membro: string
+          status?: string | null
           user_id?: string | null
         }
         Update: {
@@ -584,6 +607,7 @@ export type Database = {
           funcao?: Database["public"]["Enums"]["funcao_membro"] | null
           id?: string
           nome_membro?: string
+          status?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -948,6 +972,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_user_pro: { Args: { target_user_id: string }; Returns: boolean }
       upgrade_user_to_pro: {
         Args: { target_user_id: string }
         Returns: undefined

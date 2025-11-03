@@ -55,16 +55,11 @@ export function ApprovalsList() {
 
   const handleApprove = async (approval: Approval) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      const { error } = await supabase
-        .from('aprovacoes')
-        .update({
-          status: 'aprovado',
-          aprovado_por: user?.id,
-          data: new Date().toISOString()
-        })
-        .eq('id', approval.id);
+      const { data, error } = await supabase.functions.invoke(`approvals/${approval.id}`, {
+        body: {
+          action: 'approve'
+        }
+      });
 
       if (error) throw error;
 
@@ -88,17 +83,12 @@ export function ApprovalsList() {
     if (!selectedApproval) return;
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      const { error } = await supabase
-        .from('aprovacoes')
-        .update({
-          status: 'reprovado',
-          aprovado_por: user?.id,
-          comentario: rejectComment,
-          data: new Date().toISOString()
-        })
-        .eq('id', selectedApproval.id);
+      const { data, error } = await supabase.functions.invoke(`approvals/${selectedApproval.id}`, {
+        body: {
+          action: 'reject',
+          comment: rejectComment
+        }
+      });
 
       if (error) throw error;
 
