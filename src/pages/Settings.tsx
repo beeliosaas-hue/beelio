@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   FileText, 
   Cookie, 
@@ -878,20 +880,199 @@ function NotificacoesTab() {
 }
 
 function EquipeTab() {
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [newMemberEmail, setNewMemberEmail] = useState('');
+  const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberRole, setNewMemberRole] = useState<'editor' | 'visualizador'>('editor');
+
+  useEffect(() => {
+    loadTeamMembers();
+  }, []);
+
+  const loadTeamMembers = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('membros_equipes')
+        .select('*')
+        .or(`user_id.eq.${user.id},email_membro.eq.${user.email}`);
+
+      if (error) throw error;
+      setTeamMembers(data || []);
+    } catch (error) {
+      console.error('Erro ao carregar equipe:', error);
+      toast.error('Erro ao carregar membros da equipe');
+    }
+  };
+
+  const addTeamMember = async () => {
+    if (!newMemberEmail || !newMemberName) {
+      toast.error('Preencha todos os campos');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Verificar se há uma equipe existente
+      let { data: equipe } = await supabase
+        .from('equipes')
+        .select('id')
+        .eq('usuario_principal_id', user.id)
+        .single();
+
+      // Se não houver equipe, criar uma
+      if (!equipe) {
+        const { data: novaEquipe, error: equipeError } = await supabase
+          .from('equipes')
+          .insert({
+            usuario_principal_id: user.id,
+            nome_equipe: 'Minha Equipe',
+            descricao: 'Equipe principal'
+          })
+          .select()
+          .single();
+
+        if (equipeError) throw equipeError;
+        equipe = novaEquipe;
+      }
+
+      // Adicionar membro
+      const { error } = await supabase
+        .from('membros_equipes')
+        .insert({
+          equipe_id: equipe.id,
+          nome_membro: newMemberName,
+          email_membro: newMemberEmail,
+          funcao: newMemberRole
+        });
+
+      if (error) throw error;
+
+      toast.success('Membro adicionado com sucesso!');
+      setNewMemberEmail('');
+      setNewMemberName('');
+      await loadTeamMembers();
+    } catch (error: any) {
+      console.error('Erro ao adicionar membro:', error);
+      toast.error(error.message || 'Erro ao adicionar membro');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeMember = async (memberId: string) => {
+    try {
+      const { error } = await supabase
+        .from('membros_equipes')
+        .delete()
+        .eq('id', memberId);
+
+      if (error) throw error;
+
+      toast.success('Membro removido com sucesso!');
+      await loadTeamMembers();
+    } catch (error) {
+      console.error('Erro ao remover membro:', error);
+      toast.error('Erro ao remover membro');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="border-border bg-card">
-        <CardContent className="pt-6 text-center py-12">
-          <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            Integração de equipe disponível apenas no Plano Pro
-          </h3>
-          <p className="text-sm text-muted-foreground mb-6">
-            Para acessar recursos de equipe, faça upgrade para o plano Pro.
-          </p>
-          <Button className="bg-[#FDB022] text-white hover:bg-[#FDB022]/90">
-            Fazer Upgrade
-          </Button>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Gestão de Equipe
+          </CardTitle>
+          <CardDescription>
+            Adicione membros à sua equipe e gerencie permissões
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4">
+            <div>
+              <Label htmlFor="member-name">Nome do membro</Label>
+              <Input
+                id="member-name"
+                value={newMemberName}
+                onChange={(e) => setNewMemberName(e.target.value)}
+                placeholder="João Silva"
+              />
+            </div>
+            <div>
+              <Label htmlFor="member-email">Email</Label>
+              <Input
+                id="member-email"
+                type="email"
+                value={newMemberEmail}
+                onChange={(e) => setNewMemberEmail(e.target.value)}
+                placeholder="joao@exemplo.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="member-role">Função</Label>
+              <select
+                id="member-role"
+                value={newMemberRole}
+                onChange={(e) => setNewMemberRole(e.target.value as 'editor' | 'visualizador')}
+                className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+              >
+                <option value="editor">Editor</option>
+                <option value="visualizador">Visualizador</option>
+              </select>
+            </div>
+            <Button
+              onClick={addTeamMember}
+              disabled={loading}
+              className="bg-primary hover:bg-primary/90"
+            >
+              {loading ? 'Adicionando...' : 'Adicionar Membro'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border bg-card">
+        <CardHeader>
+          <CardTitle>Membros da Equipe</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {teamMembers.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Nenhum membro na equipe ainda
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {teamMembers.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium">{member.nome_membro}</p>
+                    <p className="text-sm text-muted-foreground">{member.email_membro}</p>
+                    <Badge variant="secondary" className="mt-1 text-xs">
+                      {member.funcao || 'editor'}
+                    </Badge>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeMember(member.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
