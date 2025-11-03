@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      aprovacoes: {
+        Row: {
+          aprovado_por: string | null
+          comentario: string | null
+          created_at: string
+          data: string
+          equipe_id: string | null
+          id: string
+          item_id: string
+          status: string
+          tipo_aprovacao: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aprovado_por?: string | null
+          comentario?: string | null
+          created_at?: string
+          data?: string
+          equipe_id?: string | null
+          id?: string
+          item_id: string
+          status?: string
+          tipo_aprovacao: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aprovado_por?: string | null
+          comentario?: string | null
+          created_at?: string
+          data?: string
+          equipe_id?: string | null
+          id?: string
+          item_id?: string
+          status?: string
+          tipo_aprovacao?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aprovacoes_equipe_id_fkey"
+            columns: ["equipe_id"]
+            isOneToOne: false
+            referencedRelation: "equipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       biblioteca: {
         Row: {
           created_at: string
