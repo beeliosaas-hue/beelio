@@ -821,6 +821,53 @@ export type Database = {
           },
         ]
       }
+      publish_jobs: {
+        Row: {
+          attempt: number | null
+          created_at: string | null
+          error_message: string | null
+          external_post_id: string | null
+          id: string
+          provider: string
+          retry_after: string | null
+          scheduled_post_id: string
+          status: string | null
+          target_id: string
+        }
+        Insert: {
+          attempt?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          external_post_id?: string | null
+          id?: string
+          provider: string
+          retry_after?: string | null
+          scheduled_post_id: string
+          status?: string | null
+          target_id: string
+        }
+        Update: {
+          attempt?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          external_post_id?: string | null
+          id?: string
+          provider?: string
+          retry_after?: string | null
+          scheduled_post_id?: string
+          status?: string | null
+          target_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "publish_jobs_scheduled_post_id_fkey"
+            columns: ["scheduled_post_id"]
+            isOneToOne: false
+            referencedRelation: "scheduled_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       relatorios: {
         Row: {
           created_at: string
@@ -853,6 +900,131 @@ export type Database = {
           periodo_inicio?: string | null
           tipo_relatorio?: string
           url_arquivo?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scheduled_posts: {
+        Row: {
+          content_text: string | null
+          created_at: string | null
+          id: string
+          media_urls: string[] | null
+          scheduled_at: string
+          status: string | null
+          timezone: string | null
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          content_text?: string | null
+          created_at?: string | null
+          id?: string
+          media_urls?: string[] | null
+          scheduled_at: string
+          status?: string | null
+          timezone?: string | null
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          content_text?: string | null
+          created_at?: string | null
+          id?: string
+          media_urls?: string[] | null
+          scheduled_at?: string
+          status?: string | null
+          timezone?: string | null
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_posts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_accounts: {
+        Row: {
+          access_token: string | null
+          account_id: string
+          account_name: string | null
+          avatar_url: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          needs_reconnect: boolean | null
+          provider: string
+          refresh_token: string | null
+          scopes: string[] | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          account_id: string
+          account_name?: string | null
+          avatar_url?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          needs_reconnect?: boolean | null
+          provider: string
+          refresh_token?: string | null
+          scopes?: string[] | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          account_id?: string
+          account_name?: string | null
+          avatar_url?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          needs_reconnect?: boolean | null
+          provider?: string
+          refresh_token?: string | null
+          scopes?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_targets: {
+        Row: {
+          account_id: string
+          created_at: string | null
+          extra: Json | null
+          id: string
+          provider: string
+          target_id: string
+          target_name: string | null
+          target_type: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string | null
+          extra?: Json | null
+          id?: string
+          provider: string
+          target_id: string
+          target_name?: string | null
+          target_type?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string | null
+          extra?: Json | null
+          id?: string
+          provider?: string
+          target_id?: string
+          target_name?: string | null
+          target_type?: string | null
           user_id?: string
         }
         Relationships: []

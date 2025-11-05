@@ -18,6 +18,11 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
+import Landing from "./pages/Landing";
+import PosCheckout from "./pages/PosCheckout";
+import AceitarInvite from "./pages/AceitarInvite";
+import Integracoes from "./pages/Integracoes";
+import NovoPost from "./pages/NovoPost";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +35,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/pos-checkout" element={<PosCheckout />} />
+          <Route path="/aceitar-invite" element={<AceitarInvite />} />
           <Route path="/calendario" element={<Calendar />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/briefing" element={<Briefing />} />
@@ -38,6 +46,8 @@ const App = () => (
           <Route path="/planner" element={<Planner />} />
           <Route path="/biblioteca" element={<Library />} />
           <Route path="/diana" element={<Diana />} />
+          <Route path="/integracoes" element={<Integracoes />} />
+          <Route path="/posts/novo" element={<NovoPost />} />
           <Route path="/aprovacao/:postId" element={<PostApproval />} />
           <Route path="/relatorios" element={<Reports />} />
           <Route path="/suporte" element={<Support />} />
