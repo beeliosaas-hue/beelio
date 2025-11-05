@@ -19,58 +19,70 @@ export type Database = {
           aprovado_por: string | null
           assigned_to: string | null
           comentario: string | null
+          comments: Json | null
           created_at: string
           data: string
           decided_at: string | null
           decided_by: string | null
+          due_date: string | null
           entity_id: string | null
           entity_type: string | null
           equipe_id: string | null
           id: string
           item_id: string
+          item_type: string | null
           requested_by: string | null
           status: string
           tipo_aprovacao: string
           updated_at: string
           user_id: string
+          workspace_id: string | null
         }
         Insert: {
           aprovado_por?: string | null
           assigned_to?: string | null
           comentario?: string | null
+          comments?: Json | null
           created_at?: string
           data?: string
           decided_at?: string | null
           decided_by?: string | null
+          due_date?: string | null
           entity_id?: string | null
           entity_type?: string | null
           equipe_id?: string | null
           id?: string
           item_id: string
+          item_type?: string | null
           requested_by?: string | null
           status?: string
           tipo_aprovacao: string
           updated_at?: string
           user_id: string
+          workspace_id?: string | null
         }
         Update: {
           aprovado_por?: string | null
           assigned_to?: string | null
           comentario?: string | null
+          comments?: Json | null
           created_at?: string
           data?: string
           decided_at?: string | null
           decided_by?: string | null
+          due_date?: string | null
           entity_id?: string | null
           entity_type?: string | null
           equipe_id?: string | null
           id?: string
           item_id?: string
+          item_type?: string | null
           requested_by?: string | null
           status?: string
           tipo_aprovacao?: string
           updated_at?: string
           user_id?: string
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -78,6 +90,13 @@ export type Database = {
             columns: ["equipe_id"]
             isOneToOne: false
             referencedRelation: "equipes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aprovacoes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
@@ -567,6 +586,44 @@ export type Database = {
         }
         Relationships: []
       }
+      invite_tokens: {
+        Row: {
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          token: string
+          used: boolean | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          token: string
+          used?: boolean | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          used?: boolean | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_tokens_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       membros_equipes: {
         Row: {
           ativo: boolean | null
@@ -581,6 +638,7 @@ export type Database = {
           nome_membro: string
           status: string | null
           user_id: string | null
+          workspace_id: string | null
         }
         Insert: {
           ativo?: boolean | null
@@ -595,6 +653,7 @@ export type Database = {
           nome_membro: string
           status?: string | null
           user_id?: string | null
+          workspace_id?: string | null
         }
         Update: {
           ativo?: boolean | null
@@ -609,6 +668,7 @@ export type Database = {
           nome_membro?: string
           status?: string | null
           user_id?: string | null
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -616,6 +676,13 @@ export type Database = {
             columns: ["equipe_id"]
             isOneToOne: false
             referencedRelation: "equipes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "membros_equipes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
@@ -720,6 +787,7 @@ export type Database = {
           plan_type: string | null
           updated_at: string
           user_id: string
+          workspace_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -730,6 +798,7 @@ export type Database = {
           plan_type?: string | null
           updated_at?: string
           user_id: string
+          workspace_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -740,8 +809,17 @@ export type Database = {
           plan_type?: string | null
           updated_at?: string
           user_id?: string
+          workspace_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       relatorios: {
         Row: {
@@ -778,6 +856,62 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          interval: string | null
+          plan: string | null
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          interval?: string | null
+          plan?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          interval?: string | null
+          plan?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       support_tickets: {
         Row: {
@@ -881,6 +1015,30 @@ export type Database = {
         }
         Relationships: []
       }
+      workspaces: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       view_posts_usuario: {
@@ -977,6 +1135,7 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
+      user_has_pro_plan: { Args: { target_user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
