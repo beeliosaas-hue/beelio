@@ -1,1 +1,46 @@
 project_id = "ygmharbfawtkwwcflzui"
+
+[functions.social-schedule]
+verify_jwt = true
+
+[functions.social-status-update]
+verify_jwt = false
+
+[functions.social-targets]
+verify_jwt = true
+
+[functions.social-disconnect]
+verify_jwt = true
+
+[functions.oauth-meta-start]
+verify_jwt = true
+
+[functions.oauth-meta-callback]
+verify_jwt = false
+
+[functions.oauth-tiktok-callback]
+verify_jwt = false
+
+[functions.diana-chat]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.team-invite]
+verify_jwt = true
+
+[functions.team-members]
+verify_jwt = true
+
+[functions.accept-invite]
+verify_jwt = true
+
+[functions.approvals-create]
+verify_jwt = true
+
+[functions.approvals-decision]
+verify_jwt = true
+
+[functions.approvals]
+verify_jwt = true

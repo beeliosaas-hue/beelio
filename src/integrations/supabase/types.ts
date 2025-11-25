@@ -993,6 +993,75 @@ export type Database = {
         }
         Relationships: []
       }
+      social_posts: {
+        Row: {
+          account_id: string | null
+          content_text: string | null
+          created_at: string
+          error_message: string | null
+          external_post_id: string | null
+          id: string
+          media_url: string | null
+          post_id: string | null
+          provider: string
+          published_at: string | null
+          scheduled_at: string | null
+          status: string | null
+          target_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          content_text?: string | null
+          created_at?: string
+          error_message?: string | null
+          external_post_id?: string | null
+          id?: string
+          media_url?: string | null
+          post_id?: string | null
+          provider: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string | null
+          target_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          content_text?: string | null
+          created_at?: string
+          error_message?: string | null
+          external_post_id?: string | null
+          id?: string
+          media_url?: string | null
+          post_id?: string | null
+          provider?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string | null
+          target_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "view_posts_usuario"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_targets: {
         Row: {
           account_id: string
