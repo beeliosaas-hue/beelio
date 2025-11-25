@@ -48,7 +48,7 @@ export default function NovoPost() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/social-targets`,
+        `https://ygmharbfawtkwwcflzui.supabase.co/functions/v1/social-targets`,
         {
           headers: {
             'Authorization': `Bearer ${session?.access_token}`
@@ -69,7 +69,7 @@ export default function NovoPost() {
     }
   };
 
-  const handleSchedule = async () => {
+  const handleSchedule = async (mode: 'schedule' | 'publish_now' = 'schedule') => {
     if (!contentText.trim()) {
       toast.error('Digite o conteúdo do post');
       return;
@@ -80,7 +80,7 @@ export default function NovoPost() {
       return;
     }
 
-    if (!scheduledDate) {
+    if (!scheduledDate && mode === 'schedule') {
       toast.error('Selecione a data de publicação');
       return;
     }
@@ -88,21 +88,38 @@ export default function NovoPost() {
     try {
       setLoading(true);
 
+      // Primeiro, criar o post na tabela posts
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: post, error: postError } = await supabase
+        .from('posts')
+        .insert({
+          user_id: user!.id,
+          titulo: contentText.substring(0, 50),
+          conteudo: contentText,
+          midia_urls: mediaUrls,
+          status: 'agendado'
+        })
+        .select()
+        .single();
+
+      if (postError) throw postError;
+
       const [hours, minutes] = scheduledTime.split(':');
-      const scheduledAt = new Date(scheduledDate);
+      const scheduledAt = scheduledDate ? new Date(scheduledDate) : new Date();
       scheduledAt.setHours(parseInt(hours), parseInt(minutes));
 
       const targetsData = selectedTargets.map(targetId => {
         const target = targets.find(t => t.target_id === targetId);
         return {
           provider: target!.provider,
-          target_id: targetId
+          targetId: target!.target_id,
+          accountId: target!.target_id
         };
       });
 
       const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/social-schedule`,
+        `https://ygmharbfawtkwwcflzui.supabase.co/functions/v1/social-schedule`,
         {
           method: 'POST',
           headers: {
@@ -110,11 +127,11 @@ export default function NovoPost() {
             'Authorization': `Bearer ${session?.access_token}`
           },
           body: JSON.stringify({
-            content_text: contentText,
-            media_urls: mediaUrls,
-            scheduled_at: scheduledAt.toISOString(),
-            timezone: 'America/Sao_Paulo',
-            targets: targetsData
+            postId: post.id,
+            userId: user!.id,
+            targets: targetsData,
+            scheduledAt: scheduledAt.toISOString(),
+            mode
           })
         }
       );
@@ -129,11 +146,11 @@ export default function NovoPost() {
         throw new Error(result.error || 'Erro ao agendar post');
       }
 
-      toast.success('Post agendado com sucesso!');
+      toast.success(mode === 'publish_now' ? 'Post publicado!' : 'Post agendado com sucesso!');
       navigate('/calendario');
     } catch (error) {
       console.error('Erro ao agendar:', error);
-      toast.error('Erro ao agendar post');
+      toast.error('Erro ao processar post');
     } finally {
       setLoading(false);
     }
@@ -143,7 +160,7 @@ export default function NovoPost() {
     const now = new Date();
     setScheduledDate(now);
     setScheduledTime(format(now, 'HH:mm'));
-    setTimeout(() => handleSchedule(), 100);
+    await handleSchedule('publish_now');
   };
 
   const toggleTarget = (targetId: string) => {
@@ -250,7 +267,7 @@ export default function NovoPost() {
 
               <div className="flex gap-2">
                 <Button 
-                  onClick={handleSchedule} 
+                  onClick={() => handleSchedule('schedule')} 
                   disabled={loading || hasNeedsReconnect}
                   className="flex-1"
                 >

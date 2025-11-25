@@ -63,8 +63,12 @@ export default function Integracoes() {
     
     // Verificar se voltou do OAuth
     const params = new URLSearchParams(window.location.search);
-    if (params.get('ok') === '1') {
+    if (params.get('connected') === 'meta') {
       toast.success('Conta conectada com sucesso!');
+      window.history.replaceState({}, '', '/integracoes');
+      loadAccounts();
+    } else if (params.get('error')) {
+      toast.error('Erro ao conectar conta: ' + params.get('error'));
       window.history.replaceState({}, '', '/integracoes');
     }
   }, []);
@@ -91,16 +95,42 @@ export default function Integracoes() {
       return;
     }
 
-    // Redirecionar para OAuth (a Edge Function deve ser criada)
-    const redirectUrl = `${window.location.origin}/integracoes`;
-    window.location.href = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/oauth/${provider}/callback?redirect_uri=${encodeURIComponent(redirectUrl)}`;
+    try {
+      // Para Facebook e Instagram, usar oauth-meta-start
+      if (provider === 'facebook' || provider === 'instagram') {
+        const { data: { session } } = await supabase.auth.getSession();
+        const response = await fetch(
+          `https://ygmharbfawtkwwcflzui.supabase.co/functions/v1/oauth-meta-start`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.access_token}`
+            },
+            body: JSON.stringify({ provider })
+          }
+        );
+
+        if (!response.ok) throw new Error('Erro ao iniciar OAuth');
+
+        const { authUrl } = await response.json();
+        window.location.href = authUrl;
+      } else {
+        // Para outros providers (LinkedIn, YouTube, etc.)
+        const redirectUrl = `${window.location.origin}/integracoes`;
+        window.location.href = `https://ygmharbfawtkwwcflzui.supabase.co/functions/v1/oauth/${provider}/callback?redirect_uri=${encodeURIComponent(redirectUrl)}`;
+      }
+    } catch (error) {
+      console.error('Erro ao conectar:', error);
+      toast.error('Erro ao iniciar conexão');
+    }
   };
 
   const handleDisconnect = async (provider: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/social-disconnect`,
+        `https://ygmharbfawtkwwcflzui.supabase.co/functions/v1/social-disconnect`,
         {
           method: 'POST',
           headers: {

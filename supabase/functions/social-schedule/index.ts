@@ -29,7 +29,22 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { content_text, media_urls, scheduled_at, timezone, targets, workspace_id } = await req.json();
+    const { postId, userId, targets, scheduledAt, mode } = await req.json();
+
+    // Validar que o postId pertence ao usuário
+    const { data: post, error: postError } = await supabaseClient
+      .from('posts')
+      .select('id, titulo, conteudo, midia_urls')
+      .eq('id', postId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (postError || !post) {
+      return new Response(JSON.stringify({ error: 'Post não encontrado ou sem permissão' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Validar targets
     if (!targets || targets.length === 0) {
@@ -58,60 +73,72 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Criar scheduled_post
-    const { data: scheduledPost, error: postError } = await supabaseClient
-      .from('scheduled_posts')
-      .insert({
-        user_id: user.id,
-        workspace_id,
-        content_text,
-        media_urls,
-        scheduled_at,
-        timezone,
-        status: 'scheduled'
-      })
-      .select()
-      .single();
+    // Determinar status baseado no mode
+    const status = mode === 'publish_now' ? 'publishing' : 'scheduled';
+    const scheduledAtTime = scheduledAt || new Date().toISOString();
 
-    if (postError) {
-      throw postError;
-    }
-
-    // Criar publish_jobs para cada target
-    const jobs = targets.map((target: any) => ({
-      scheduled_post_id: scheduledPost.id,
+    // Criar registros em social_posts para cada target
+    const socialPostsData = targets.map((target: any) => ({
+      post_id: postId,
+      user_id: user.id,
       provider: target.provider,
-      target_id: target.target_id,
-      status: 'queued'
+      account_id: target.accountId,
+      target_id: target.targetId,
+      status,
+      scheduled_at: scheduledAtTime,
+      content_text: post.conteudo,
+      media_url: post.midia_urls?.[0] || null
     }));
 
-    const { error: jobsError } = await supabaseClient
-      .from('publish_jobs')
-      .insert(jobs);
+    const { data: socialPosts, error: socialPostsError } = await supabaseClient
+      .from('social_posts')
+      .insert(socialPostsData)
+      .select();
 
-    if (jobsError) {
-      throw jobsError;
+    if (socialPostsError) {
+      console.error('Error creating social_posts:', socialPostsError);
+      throw socialPostsError;
     }
 
     // Notificar n8n (webhook)
-    const n8nUrl = Deno.env.get('N8N_WEBHOOK_URL');
-    if (n8nUrl) {
-      await fetch(n8nUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event: 'post_scheduled',
-          post_id: scheduledPost.id,
-          user_id: user.id,
-          scheduled_at,
-          targets: targets.map((t: any) => ({ provider: t.provider, target_id: t.target_id }))
-        })
-      });
+    const n8nUrl = Deno.env.get('N8N_SOCIAL_PUBLISH_WEBHOOK_URL');
+    if (n8nUrl && socialPosts) {
+      try {
+        const webhookPayload = {
+          postId,
+          userId: user.id,
+          socialPosts: socialPosts.map(sp => ({
+            id: sp.id,
+            provider: sp.provider,
+            accountId: sp.account_id,
+            targetId: sp.target_id
+          }))
+        };
+
+        console.log('Sending to n8n:', webhookPayload);
+
+        await fetch(n8nUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(webhookPayload)
+        });
+      } catch (n8nError) {
+        console.error('Error notifying n8n:', n8nError);
+        
+        // Atualizar social_posts para failed
+        await supabaseClient
+          .from('social_posts')
+          .update({ 
+            status: 'failed',
+            error_message: 'Falha ao comunicar com n8n: ' + n8nError.message
+          })
+          .in('id', socialPosts.map(sp => sp.id));
+      }
     }
 
     return new Response(JSON.stringify({ 
       success: true,
-      post_id: scheduledPost.id 
+      socialPosts: socialPosts?.map(sp => ({ id: sp.id, status: sp.status }))
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
