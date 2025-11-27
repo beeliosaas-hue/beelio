@@ -88,7 +88,6 @@ export default function NovoPost() {
     try {
       setLoading(true);
 
-      // Primeiro, criar o post na tabela posts
       const { data: { user } } = await supabase.auth.getUser();
       const { data: post, error: postError } = await supabase
         .from('posts')
@@ -140,17 +139,30 @@ export default function NovoPost() {
 
       if (!response.ok) {
         if (result.error === 'needs_reconnect') {
-          toast.error(`Reconecte suas contas: ${result.providers.join(', ')}`);
+          toast.error(`Reconecte suas contas: ${result.providers.join(', ')}`, {
+            action: {
+              label: 'Ir para Integrações',
+              onClick: () => navigate('/integracoes')
+            }
+          });
           return;
         }
         throw new Error(result.error || 'Erro ao agendar post');
       }
 
-      toast.success(mode === 'publish_now' ? 'Post publicado!' : 'Post agendado com sucesso!');
-      navigate('/calendario');
+      const successMsg = mode === 'publish_now' 
+        ? `Post publicado em ${result.socialPosts?.length || 0} rede(s)!`
+        : `Post agendado para ${result.socialPosts?.length || 0} rede(s)!`;
+      
+      toast.success(successMsg, {
+        description: 'Você será redirecionado para o calendário',
+        duration: 2000
+      });
+
+      setTimeout(() => navigate('/calendario'), 2000);
     } catch (error) {
       console.error('Erro ao agendar:', error);
-      toast.error('Erro ao processar post');
+      toast.error(error instanceof Error ? error.message : 'Erro ao processar post');
     } finally {
       setLoading(false);
     }
@@ -271,6 +283,7 @@ export default function NovoPost() {
                   disabled={loading || hasNeedsReconnect}
                   className="flex-1"
                 >
+                  {loading && <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
                   {loading ? 'Agendando...' : 'Agendar Post'}
                 </Button>
                 <Button 
@@ -279,6 +292,7 @@ export default function NovoPost() {
                   variant="outline"
                   className="flex-1"
                 >
+                  {loading && <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
                   Publicar Agora
                 </Button>
               </div>
