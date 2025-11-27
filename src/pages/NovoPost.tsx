@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +13,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { PostPreview } from '@/components/social/PostPreview';
+import { useCreatePost } from '@/hooks/useCreatePost';
 
 interface Target {
   provider: string;
@@ -30,10 +32,10 @@ interface SocialAccount {
 
 export default function NovoPost() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const { isLoading, execute } = useCreatePost();
   const [loadingTargets, setLoadingTargets] = useState(true);
   const [contentText, setContentText] = useState('');
-  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [mediaUrl, setMediaUrl] = useState('');
   const [scheduledDate, setScheduledDate] = useState<Date>();
   const [scheduledTime, setScheduledTime] = useState('12:00');
   const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
@@ -70,101 +72,29 @@ export default function NovoPost() {
   };
 
   const handleSchedule = async (mode: 'schedule' | 'publish_now' = 'schedule') => {
-    if (!contentText.trim()) {
-      toast.error('Digite o conteúdo do post');
-      return;
-    }
+    const [hours, minutes] = scheduledTime.split(':');
+    const scheduledAt = scheduledDate ? new Date(scheduledDate) : new Date();
+    scheduledAt.setHours(parseInt(hours), parseInt(minutes));
 
-    if (selectedTargets.length === 0) {
-      toast.error('Selecione ao menos um destino');
-      return;
-    }
+    const targetsData = selectedTargets.map(targetId => {
+      const target = targets.find(t => t.target_id === targetId);
+      return {
+        provider: target!.provider,
+        targetId: target!.target_id,
+        accountId: target!.target_id
+      };
+    });
 
-    if (!scheduledDate && mode === 'schedule') {
-      toast.error('Selecione a data de publicação');
-      return;
-    }
+    const result = await execute({
+      caption: contentText,
+      mediaUrl: mediaUrl || undefined,
+      targets: targetsData,
+      scheduledAt: scheduledAt.toISOString(),
+      mode
+    });
 
-    try {
-      setLoading(true);
-
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data: post, error: postError } = await supabase
-        .from('posts')
-        .insert({
-          user_id: user!.id,
-          titulo: contentText.substring(0, 50),
-          conteudo: contentText,
-          midia_urls: mediaUrls,
-          status: 'agendado'
-        })
-        .select()
-        .single();
-
-      if (postError) throw postError;
-
-      const [hours, minutes] = scheduledTime.split(':');
-      const scheduledAt = scheduledDate ? new Date(scheduledDate) : new Date();
-      scheduledAt.setHours(parseInt(hours), parseInt(minutes));
-
-      const targetsData = selectedTargets.map(targetId => {
-        const target = targets.find(t => t.target_id === targetId);
-        return {
-          provider: target!.provider,
-          targetId: target!.target_id,
-          accountId: target!.target_id
-        };
-      });
-
-      const { data: { session } } = await supabase.auth.getSession();
-      const response = await fetch(
-        `https://ygmharbfawtkwwcflzui.supabase.co/functions/v1/social-schedule`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`
-          },
-          body: JSON.stringify({
-            postId: post.id,
-            userId: user!.id,
-            targets: targetsData,
-            scheduledAt: scheduledAt.toISOString(),
-            mode
-          })
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        if (result.error === 'needs_reconnect') {
-          toast.error(`Reconecte suas contas: ${result.providers.join(', ')}`, {
-            action: {
-              label: 'Ir para Integrações',
-              onClick: () => navigate('/integracoes')
-            }
-          });
-          return;
-        }
-        throw new Error(result.error || 'Erro ao agendar post');
-      }
-
-      const successMsg = mode === 'publish_now' 
-        ? `Post publicado em ${result.socialPosts?.length || 0} rede(s)!`
-        : `Post agendado para ${result.socialPosts?.length || 0} rede(s)!`;
-      
-      toast.success(successMsg, {
-        description: 'Você será redirecionado para o calendário',
-        duration: 2000
-      });
-
+    if (result) {
       setTimeout(() => navigate('/calendario'), 2000);
-    } catch (error) {
-      console.error('Erro ao agendar:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro ao processar post');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -207,8 +137,8 @@ export default function NovoPost() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card className="md:col-span-2">
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle>Conteúdo</CardTitle>
             </CardHeader>
@@ -220,18 +150,18 @@ export default function NovoPost() {
                   placeholder="Escreva o conteúdo do seu post..."
                   value={contentText}
                   onChange={(e) => setContentText(e.target.value)}
-                  rows={6}
+                  rows={8}
                   className="mt-2"
                 />
               </div>
 
               <div>
-                <Label htmlFor="media">Mídia (URLs separadas por vírgula)</Label>
+                <Label htmlFor="media">URL da Mídia</Label>
                 <Input
                   id="media"
-                  placeholder="https://exemplo.com/imagem.jpg, ..."
-                  value={mediaUrls.join(', ')}
-                  onChange={(e) => setMediaUrls(e.target.value.split(',').map(u => u.trim()))}
+                  placeholder="https://exemplo.com/imagem.jpg"
+                  value={mediaUrl}
+                  onChange={(e) => setMediaUrl(e.target.value)}
                   className="mt-2"
                 />
               </div>
@@ -240,11 +170,11 @@ export default function NovoPost() {
                 <div>
                   <Label>Data de Publicação</Label>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start mt-2">
+                  <PopoverTrigger asChild>
+                      <LoadingButton variant="outline" className="w-full justify-start mt-2">
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {scheduledDate ? format(scheduledDate, 'dd/MM/yyyy') : 'Selecionar data'}
-                      </Button>
+                      </LoadingButton>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                       <Calendar
@@ -278,31 +208,34 @@ export default function NovoPost() {
               )}
 
               <div className="flex gap-2">
-                <Button 
+                <LoadingButton 
                   onClick={() => handleSchedule('schedule')} 
-                  disabled={loading || hasNeedsReconnect}
+                  isLoading={isLoading}
+                  disabled={hasNeedsReconnect}
                   className="flex-1"
                 >
-                  {loading && <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
-                  {loading ? 'Agendando...' : 'Agendar Post'}
-                </Button>
-                <Button 
+                  Agendar Post
+                </LoadingButton>
+                <LoadingButton 
                   onClick={handlePublishNow} 
-                  disabled={loading || hasNeedsReconnect}
+                  isLoading={isLoading}
+                  disabled={hasNeedsReconnect}
                   variant="outline"
                   className="flex-1"
                 >
-                  {loading && <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
                   Publicar Agora
-                </Button>
+                </LoadingButton>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Destinos</CardTitle>
-            </CardHeader>
+          <div className="space-y-6">
+            <PostPreview caption={contentText} mediaUrl={mediaUrl} />
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Destinos</CardTitle>
+              </CardHeader>
             <CardContent>
               {loadingTargets ? (
                 <p className="text-sm text-muted-foreground">Carregando...</p>
@@ -340,6 +273,7 @@ export default function NovoPost() {
               )}
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
     </DashboardLayout>
