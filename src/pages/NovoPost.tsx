@@ -35,7 +35,7 @@ export default function NovoPost() {
   const { isLoading, execute } = useCreatePost();
   const [loadingTargets, setLoadingTargets] = useState(true);
   const [contentText, setContentText] = useState('');
-  const [mediaUrl, setMediaUrl] = useState('');
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [scheduledDate, setScheduledDate] = useState<Date>();
   const [scheduledTime, setScheduledTime] = useState('12:00');
   const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
@@ -72,6 +72,11 @@ export default function NovoPost() {
   };
 
   const handleSchedule = async (mode: 'schedule' | 'publish_now' = 'schedule') => {
+    if (!scheduledDate && mode === 'schedule') {
+      toast.error('Selecione a data de publicação');
+      return;
+    }
+
     const [hours, minutes] = scheduledTime.split(':');
     const scheduledAt = scheduledDate ? new Date(scheduledDate) : new Date();
     scheduledAt.setHours(parseInt(hours), parseInt(minutes));
@@ -87,13 +92,14 @@ export default function NovoPost() {
 
     const result = await execute({
       caption: contentText,
-      mediaUrl: mediaUrl || undefined,
+      mediaUrl: mediaUrls[0] || undefined,
       targets: targetsData,
       scheduledAt: scheduledAt.toISOString(),
       mode
     });
 
     if (result) {
+      toast.success(mode === 'publish_now' ? 'Post publicado!' : 'Post agendado!');
       setTimeout(() => navigate('/calendario'), 2000);
     }
   };
@@ -156,14 +162,40 @@ export default function NovoPost() {
               </div>
 
               <div>
-                <Label htmlFor="media">URL da Mídia</Label>
-                <Input
-                  id="media"
-                  placeholder="https://exemplo.com/imagem.jpg"
-                  value={mediaUrl}
-                  onChange={(e) => setMediaUrl(e.target.value)}
-                  className="mt-2"
-                />
+                <Label htmlFor="media">URLs de Mídia (até 20)</Label>
+                <div className="space-y-2 mt-2">
+                  {mediaUrls.map((url, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        placeholder={`URL da mídia ${index + 1}`}
+                        value={url}
+                        onChange={(e) => {
+                          const newUrls = [...mediaUrls];
+                          newUrls[index] = e.target.value;
+                          setMediaUrls(newUrls);
+                        }}
+                      />
+                      <LoadingButton
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setMediaUrls(mediaUrls.filter((_, i) => i !== index));
+                        }}
+                      >
+                        ✕
+                      </LoadingButton>
+                    </div>
+                  ))}
+                  {mediaUrls.length < 20 && (
+                    <LoadingButton
+                      variant="outline"
+                      onClick={() => setMediaUrls([...mediaUrls, ''])}
+                      className="w-full"
+                    >
+                      + Adicionar Mídia
+                    </LoadingButton>
+                  )}
+                </div>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
@@ -230,7 +262,7 @@ export default function NovoPost() {
           </Card>
 
           <div className="space-y-6">
-            <PostPreview caption={contentText} mediaUrl={mediaUrl} />
+            <PostPreview caption={contentText} mediaUrl={mediaUrls[0]} />
 
             <Card>
               <CardHeader>
